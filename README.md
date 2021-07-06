@@ -1,12 +1,3 @@
-# luaide-lite
-[![](https://vsmarketplacebadge.apphb.com/version-short/wellshsu.luaide-lite.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=wellshsu.luaide-lite)
-[![](https://vsmarketplacebadge.apphb.com/installs-short/wellshsu.luaide-lite.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=wellshsu.luaide-lite)
-[![](https://vsmarketplacebadge.apphb.com/rating-short/wellshsu.luaide-lite.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=wellshsu.luaide-lite)
-* Author: Wells Hsu
-* Email: wellshsu@outlook.com
-* **QQ群: 952522807 (仅供交流学习，原621598820已失效)**
-* Github: https://github.com/hsu2017/luaide-lite
-
 # Features | 功能特性
 * **legacy的解析库不再维护(推介使用emmy), debug和format会继续维护.**
 

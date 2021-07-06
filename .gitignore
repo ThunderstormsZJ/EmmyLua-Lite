@@ -10,7 +10,10 @@ out
 /test/xlua/.vs
 /test/xlua/Library
 /test/xlua/Temp
+/package-lock.json
+temp/**
 *.csproj
 *.sln
 *.pdb
 *.userprefs
+*.vsix

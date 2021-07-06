@@ -21,7 +21,7 @@ export class PvdTemplate {
                     }
                 })
             } else {
-                vscode.window.showWarningMessage("No template files in " + ExtMgr.templateDir + ", please change 'luaide-lite.templateDir'")
+                vscode.window.showWarningMessage("No template files in " + ExtMgr.templateDir + ", please change 'emmylua-lite.templateDir'")
             }
         }
     }
@@ -67,10 +67,10 @@ export class PvdTemplate {
                     content = content.replace(new RegExp("{" + k + "}", "gm"), v)
                 })
                 if (!isCopyright) {
-                    content = content.replace(new RegExp("{copyright}", "gm"), "2018 luaide-lite")
+                    content = content.replace(new RegExp("{copyright}", "gm"), "2018 emmylua-lite")
                 }
                 if (!isAuthor) {
-                    content = content.replace(new RegExp("{author}", "gm"), "luaide-lite")
+                    content = content.replace(new RegExp("{author}", "gm"), "emmylua-lite")
                 }
                 var targetFile = path.join(newfile, filename)
                 fs.writeFile(targetFile, content, function (err) {

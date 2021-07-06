@@ -12,7 +12,7 @@ export class PvdLuats {
 
     public static processFile(e) {
         if (!ExtMgr.enableFormat) {
-            vscode.window.showWarningMessage("Enable format setting 'luaide-lite.enableFormat:true'")
+            vscode.window.showWarningMessage("Enable format setting 'emmylua-lite.enableFormat:true'")
             return
         }
         var path = e.fsPath

@@ -7,8 +7,8 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    "luaide-lite.luaOperatorCheck": false,
-    "luaide-lite.exclude": [
+    "emmylua-lite.luaOperatorCheck": false,
+    "emmylua-lite.exclude": [
         "res/template",
         "test/xlua"
     ],

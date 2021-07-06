@@ -1,15 +1,15 @@
 {
-	"name": "luaide-lite",
-	"displayName": "luaide-lite",
+	"name": "emmylua-lite",
+	"displayName": "EmmyLua-Lite",
 	"description": "Lua developement and debug tools.",
 	"license": "MIT",
 	"version": "0.3.4",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/hsu2017/luaide-lite"
+		"url": "https://github.com/ThunderstormsZJ/EmmyLua-Lite"
 	},
 	"bugs": {
-		"url": "https://github.com/hsu2017/luaide-lite/issues"
+		"url": "https://github.com/ThunderstormsZJ/EmmyLua-Lite/issues"
 	},
 	"publisher": "wellshsu",
 	"author": {
@@ -53,117 +53,117 @@
 				"configurationAttributes": {
 					"attach": {
 						"required": [
-                            "pid"
-                        ],
-                        "properties": {
-                            "pid": {
-                                "type": "number",
-                                "description": "%debug.attach.target_pid%",
-                                "default": 0
-                            }
-                        }
+							"pid"
+						],
+						"properties": {
+							"pid": {
+								"type": "number",
+								"description": "%debug.attach.target_pid%",
+								"default": 0
+							}
+						}
 					}
 				},
 				"initialConfigurations": [
-                    {
-                        "type": "emmylua_attach",
-                        "request": "attach",
-                        "name": "%debug.attach.name%",
-                        "pid": 0
-                    }
-                ],
+					{
+						"type": "emmylua_attach",
+						"request": "attach",
+						"name": "%debug.attach.name%",
+						"pid": 0
+					}
+				],
 				"configurationSnippets": [
-                    {
-                        "label": "%debug.attach.label%",
-                        "description": "%debug.attach.desc%",
-                        "body": {
-                            "type": "emmylua_attach",
-                            "request": "attach",
-                            "name": "%debug.attach.name%",
-                            "pid": 0
-                        }
-                    }
-                ],
+					{
+						"label": "%debug.attach.label%",
+						"description": "%debug.attach.desc%",
+						"body": {
+							"type": "emmylua_attach",
+							"request": "attach",
+							"name": "%debug.attach.name%",
+							"pid": 0
+						}
+					}
+				],
 				"languages": [
-                    "lua"
-                ]
+					"lua"
+				]
 			},
 			{
-                "type": "emmylua_new",
-                "label": "EmmyLua New Debugger",
-                "program": "./out/debugger/EmmyDebugAdapter.js",
-                "runtime": "node",
-                "configurationAttributes": {
-                    "launch": {
-                        "required": [
-                            "host",
-                            "port",
-                            "ideConnectDebugger"
-                        ],
-                        "properties": {
-                            "host": {
-                                "type": "string",
-                                "description": "host",
-                                "default": "localhost"
-                            },
-                            "port": {
-                                "type": "number",
-                                "description": "port",
-                                "default": 9966
-                            },
-                            "ideConnectDebugger": {
-                                "type": "boolean",
-                                "description": "连接方式",
-                                "default": true
-                            },
-                            "ext": {
-                                "type": "array",
-                                "description": "Lua文件后缀",
-                                "default": [
-                                    ".lua"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "initialConfigurations": [
-                    {
-                        "type": "emmylua_new",
-                        "request": "launch",
-                        "name": "EmmyLua New Debug",
-                        "host": "localhost",
-                        "port": 9966,
-                        "ext": [
-                            ".lua",
-                            ".lua.txt",
-                            ".lua.bytes"
-                        ],
-                        "ideConnectDebugger": true
-                    }
-                ],
-                "configurationSnippets": [
-                    {
-                        "label": "EmmyLua New Debug",
-                        "description": "EmmyLua New Debug",
-                        "body": {
-                            "type": "emmylua_new",
-                            "request": "launch",
-                            "name": "EmmyLua New Debug",
-                            "host": "localhost",
-                            "port": 9966,
-                            "ext": [
-                                ".lua",
-                                ".lua.txt",
-                                ".lua.bytes"
-                            ],
-                            "ideConnectDebugger": true
-                        }
-                    }
-                ],
-                "languages": [
-                    "lua"
-                ]
-            }
+				"type": "emmylua_new",
+				"label": "EmmyLua New Debugger",
+				"program": "./out/debugger/EmmyDebugAdapter.js",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"host",
+							"port",
+							"ideConnectDebugger"
+						],
+						"properties": {
+							"host": {
+								"type": "string",
+								"description": "host",
+								"default": "localhost"
+							},
+							"port": {
+								"type": "number",
+								"description": "port",
+								"default": 9966
+							},
+							"ideConnectDebugger": {
+								"type": "boolean",
+								"description": "连接方式",
+								"default": true
+							},
+							"ext": {
+								"type": "array",
+								"description": "Lua文件后缀",
+								"default": [
+									".lua"
+								]
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "emmylua_new",
+						"request": "launch",
+						"name": "EmmyLua New Debug",
+						"host": "localhost",
+						"port": 9966,
+						"ext": [
+							".lua",
+							".lua.txt",
+							".lua.bytes"
+						],
+						"ideConnectDebugger": true
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "EmmyLua New Debug",
+						"description": "EmmyLua New Debug",
+						"body": {
+							"type": "emmylua_new",
+							"request": "launch",
+							"name": "EmmyLua New Debug",
+							"host": "localhost",
+							"port": 9966,
+							"ext": [
+								".lua",
+								".lua.txt",
+								".lua.bytes"
+							],
+							"ideConnectDebugger": true
+						}
+					}
+				],
+				"languages": [
+					"lua"
+				]
+			}
 		],
 		"snippets": [
 			{
@@ -178,7 +178,7 @@
 					".lua"
 				],
 				"aliases": [
-					"luaide-lite"
+					"EmmyLua-Lite"
 				],
 				"configuration": "./res/languages.json"
 			}
@@ -192,163 +192,163 @@
 		],
 		"commands": [
 			{
-				"command": "luaide-lite.toUpperCase",
+				"command": "emmylua-lite.toUpperCase",
 				"title": "To UpperCase"
 			},
 			{
-				"command": "luaide-lite.toLowerCase",
+				"command": "emmylua-lite.toLowerCase",
 				"title": "To LowerCase"
 			},
 			{
-				"command": "luaide-lite.about",
-				"title": "About luaide-lite"
+				"command": "emmylua-lite.about",
+				"title": "About emmylua-lite"
 			},
 			{
-				"command": "luaide-lite.formatFiles",
+				"command": "emmylua-lite.formatFiles",
 				"title": "Lua/Format File(s)"
 			},
 			{
-				"command": "luaide-lite.createTemplate",
+				"command": "emmylua-lite.createTemplate",
 				"title": "Lua/New Template"
 			},
 			{
-				"command": "luaide-lite.openRes",
+				"command": "emmylua-lite.openRes",
 				"title": "Lua/Open Res"
 			},
 			{
-				"command": "luaide-lite.convertTsFile",
+				"command": "emmylua-lite.convertTsFile",
 				"title": "Lua/To Typescript"
 			},
 			{
-				"command": "luaide-lite.convertTsText",
+				"command": "emmylua-lite.convertTsText",
 				"title": "To Typescript"
 			}
 		],
 		"menus": {
 			"explorer/context": [
 				{
-					"command": "luaide-lite.formatFiles",
-					"group": "luaide-lite"
+					"command": "emmylua-lite.formatFiles",
+					"group": "emmylua-lite"
 				},
 				{
-					"command": "luaide-lite.createTemplate",
-					"group": "luaide-lite"
+					"command": "emmylua-lite.createTemplate",
+					"group": "emmylua-lite"
 				},
 				{
-					"command": "luaide-lite.openRes",
-					"group": "luaide-lite"
+					"command": "emmylua-lite.openRes",
+					"group": "emmylua-lite"
 				}
 			],
 			"editor/context": [
 				{
-					"command": "luaide-lite.toUpperCase",
-					"group": "luaide-lite",
+					"command": "emmylua-lite.toUpperCase",
+					"group": "emmylua-lite",
 					"when": "editorHasSelection && editorLangId == lua"
 				},
 				{
-					"command": "luaide-lite.toLowerCase",
-					"group": "luaide-lite",
+					"command": "emmylua-lite.toLowerCase",
+					"group": "emmylua-lite",
 					"when": "editorHasSelection && editorLangId == lua"
 				},
 				{
-					"command": "luaide-lite.convertTsText",
-					"group": "luaide-lite",
+					"command": "emmylua-lite.convertTsText",
+					"group": "emmylua-lite",
 					"when": "editorHasSelection"
 				}
 			]
 		},
 		"keybindings": [
 			{
-				"command": "luaide-lite.toUpperCase",
+				"command": "emmylua-lite.toUpperCase",
 				"key": "CTRL+L CTRL+U",
 				"when": "editorHasSelection && editorLangId == lua"
 			},
 			{
-				"command": "luaide-lite.toLowerCase",
+				"command": "emmylua-lite.toLowerCase",
 				"key": "CTRL+L CTRL+L",
 				"when": "editorHasSelection && editorLangId == lua"
 			},
 			{
-				"command": "luaide-lite.convertTsText",
+				"command": "emmylua-lite.convertTsText",
 				"key": "CTRL+K CTRL+V",
 				"when": "editorHasSelection"
 			}
 		],
 		"configuration": {
 			"type": "object",
-			"title": "luaide-lite",
+			"title": "emmylua-lite",
 			"properties": {
-				"luaide-lite.javahome": {
+				"emmylua-lite.javahome": {
 					"type": "string",
 					"default": null,
 					"description": "JAVA HOME.\nJava环境根目录."
 				},
-				"luaide-lite.enableHighlight": {
+				"emmylua-lite.enableHighlight": {
 					"type": "boolean",
 					"default": true,
 					"description": "Highlight global var.\n全局变量高亮显示."
 				},
-				"luaide-lite.highlightNormal": {
+				"emmylua-lite.highlightNormal": {
 					"type": "string",
 					"default": "#2B91AF",
 					"description": "Light theme highlight color.\n白色系主题高亮的颜色."
 				},
-				"luaide-lite.highlightDark": {
+				"emmylua-lite.highlightDark": {
 					"type": "string",
 					"default": "#00D6AA",
 					"description": "Dark theme highlight color.\n黑色系主题高亮的颜色."
 				},
-				"luaide-lite.theme.light.parameter": {
+				"emmylua-lite.theme.light.parameter": {
 					"type": "string",
 					"default": "#565656",
 					"description": "Light theme parameter color.\n白色系主题参数颜色."
 				},
-				"luaide-lite.theme.light.global": {
+				"emmylua-lite.theme.light.global": {
 					"type": "string",
 					"default": "#2B91AF",
 					"description": "Light theme global color.\n白色系主题全局变量颜色."
 				},
-				"luaide-lite.theme.light.annotation": {
+				"emmylua-lite.theme.light.annotation": {
 					"type": "string",
 					"default": "#2B91AF",
 					"description": "Light theme annotation color.\n白色系主题注解颜色."
 				},
-				"luaide-lite.theme.dark.parameter": {
+				"emmylua-lite.theme.dark.parameter": {
 					"type": "string",
 					"default": "#FFFFFF",
 					"description": "Dark theme parameter color.\n黑色系主题参数颜色."
 				},
-				"luaide-lite.theme.dark.global": {
+				"emmylua-lite.theme.dark.global": {
 					"type": "string",
 					"default": "#00D6AA",
 					"description": "Dark theme parameter color.\n黑色系主题参数颜色."
 				},
-				"luaide-lite.theme.dark.annotation": {
+				"emmylua-lite.theme.dark.annotation": {
 					"type": "string",
 					"default": "#00D6AA",
 					"description": "Dark theme annotation color.\n黑色系主题注解颜色."
 				},
-				"luaide-lite.enableFormat": {
+				"emmylua-lite.enableFormat": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable internal format tool.\n是否使用格式化."
 				},
-				"luaide-lite.luaOperatorCheck": {
+				"emmylua-lite.luaOperatorCheck": {
 					"type": "boolean",
 					"default": true,
 					"description": "Set false if you override operator in your code.\n是否解析符号重载."
 				},
-				"luaide-lite.luaFunArgCheck": {
+				"emmylua-lite.luaFunArgCheck": {
 					"type": "boolean",
 					"default": true,
 					"description": "Check function args, 'set true' doesn't allow same arg identifier.\n是否解析函数的参数."
 				},
-				"luaide-lite.moduleFunNestingCheck": {
+				"emmylua-lite.moduleFunNestingCheck": {
 					"type": "boolean",
 					"default": false,
 					"description": "Check module function nesting.\n模块方法嵌套检查, 如果在一个方法中出现另外一个模块方法会认为是错误的."
 				},
-				"luaide-lite.templateDefine": {
+				"emmylua-lite.templateDefine": {
 					"type": "array",
 					"default": [],
 					"description": "Replace specific var in template file.\n模板值定义, 用于创建模板文件时全局替换.",
@@ -356,12 +356,12 @@
 						"type": "object"
 					}
 				},
-				"luaide-lite.templateDir": {
+				"emmylua-lite.templateDir": {
 					"type": "string",
 					"default": "",
 					"description": "Template file directory, support recursive.\n模板文件目录."
 				},
-				"luaide-lite.exclude": {
+				"emmylua-lite.exclude": {
 					"type": "array",
 					"default": [],
 					"description": "Exclude specific file(s) or folder(s).\n需要排除的文件夹, 这些文件夹将不会被解析.",
@@ -369,7 +369,7 @@
 						"type": "string"
 					}
 				},
-				"luaide-lite.apiFolders": {
+				"emmylua-lite.apiFolders": {
 					"type": "array",
 					"default": [],
 					"description": "API define's directory(relative/absolute).\nAPI提示文件路径(相对/绝对).",
@@ -377,24 +377,24 @@
 						"type": "string"
 					}
 				},
-				"luaide-lite.formatHex": {
+				"emmylua-lite.formatHex": {
 					"type": "boolean",
 					"default": true,
 					"description": "Convert hex to decimal.\n是否格式化十六进制的数字."
 				},
-				"luaide-lite.numberRadix": {
+				"emmylua-lite.numberRadix": {
 					"type": "array",
 					"default": [
 						10
 					],
 					"description": "Display number radix when debug number value.\n调试时需要显示的数字进制格式, 例如二进制, 十进制等."
 				},
-				"luaide-lite.enableDiagnostic": {
+				"emmylua-lite.enableDiagnostic": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable code diagnostic.\n是否启用代码分析, 如果禁用将不会有错误提示."
 				},
-				"luaide-lite.typescriptDefine": {
+				"emmylua-lite.typescriptDefine": {
 					"type": "array",
 					"default": [],
 					"description": "Replace specific var in typescript content.\n转换为Typescript时的模板值定义, 用于全局替换转化内容.",
@@ -402,12 +402,12 @@
 						"type": "object"
 					}
 				},
-				"luaide-lite.showWeather": {
+				"emmylua-lite.showWeather": {
 					"type": "boolean",
 					"default": false,
 					"description": "If show today's weather?.\n是否显示天气, 默认关闭."
 				},
-				"luaide-lite.formatUseTab": {
+				"emmylua-lite.formatUseTab": {
 					"type": "boolean",
 					"default": false,
 					"description": "If format document by indenting tab?.\n是否使用tab来缩进代码, 默认关闭."
@@ -430,7 +430,9 @@
 		"mocha": "^2.3.3",
 		"ts-loader": "^5.3.3",
 		"typescript": "^4.0.2",
-		"vscode": "^1.1.22"
+		"vscode": "^1.1.22",
+		"download": "^7.1.0",
+		"filecopy": "^4.0.2"
 	},
 	"dependencies": {
 		"rd": "^1.1.2",

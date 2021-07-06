@@ -15,8 +15,8 @@ import { PvdFormat } from "../provider/PvdFormat"
 export class ExtMgr {
     public static LUA_MODE: vscode.DocumentFilter = { language: "lua", scheme: "file" }
     public static LANGUAGE_ID = "lua"
-    public static extensionID = "wellshsu.luaide-lite"
-    public static extensionName = "luaide-lite"
+    public static extensionID = "wellshsu.emmylua-lite"
+    public static extensionName = "emmylua-lite"
     public static slogan = "Lite & Free"
 
     public static luaOperatorCheck: boolean
@@ -58,14 +58,14 @@ export class ExtMgr {
     public static bar: vscode.StatusBarItem
 
     public static Commands = [
-        { label: "luaide-lite.toUpperCase", desc: "Shift chars to uppercase", func: UpperLower.toUpperCase },
-        { label: "luaide-lite.toLowerCase", desc: "Shift carrs to lowercase", func: UpperLower.toLowerCase },
-        { label: "luaide-lite.formatFiles", desc: "Format file(s)", func: FileFormat.process },
-        { label: "luaide-lite.createTemplate", desc: "Create template", func: PvdTemplate.process },
-        { label: "luaide-lite.convertTsFile", desc: "Translate lua to typescript", func: PvdLuats.processFile },
-        { label: "luaide-lite.convertTsText", desc: "Convert lua to typescript", func: PvdLuats.processText },
-        { label: "luaide-lite.openRes", desc: "Open res folder", func: ExtMgr.openRes },
-        { label: "luaide-lite.about", desc: "About luaide-lite", func: ExtMgr.showAbout },
+        { label: "emmylua-lite.toUpperCase", desc: "Shift chars to uppercase", func: UpperLower.toUpperCase },
+        { label: "emmylua-lite.toLowerCase", desc: "Shift carrs to lowercase", func: UpperLower.toLowerCase },
+        { label: "emmylua-lite.formatFiles", desc: "Format file(s)", func: FileFormat.process },
+        { label: "emmylua-lite.createTemplate", desc: "Create template", func: PvdTemplate.process },
+        { label: "emmylua-lite.convertTsFile", desc: "Translate lua to typescript", func: PvdLuats.processFile },
+        { label: "emmylua-lite.convertTsText", desc: "Convert lua to typescript", func: PvdLuats.processText },
+        { label: "emmylua-lite.openRes", desc: "Open res folder", func: ExtMgr.openRes },
+        { label: "emmylua-lite.about", desc: "About emmylua-lite", func: ExtMgr.showAbout },
     ]
 
     public static showAbout(e) {
@@ -81,7 +81,7 @@ export class ExtMgr {
     }
 
     public static initialize(context: ExtensionContext): boolean {
-        ExtMgr.isDevMode = context.extensionPath.indexOf("wellshsu.luaide-lite") < 0
+        ExtMgr.isDevMode = context.extensionPath.indexOf("wellshsu.emmylua-lite") < 0
         if (vscode.workspace == null || vscode.workspace.rootPath == null) {
             vscode.window.showInformationMessage(ExtMgr.extensionName + " does't support single lua file, please use 'Open Folder' instead.")
             return false
@@ -131,7 +131,7 @@ export class ExtMgr {
             ExtMgr.bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
             context.subscriptions.push(this.bar)
             ExtMgr.bar.tooltip = ExtMgr.slogan
-            ExtMgr.bar.command = "luaide-lite.about"
+            ExtMgr.bar.command = "emmylua-lite.about"
             ExtMgr.bar.text = ExtMgr.extensionName
             ExtMgr.bar.show()
 
@@ -146,7 +146,7 @@ export class ExtMgr {
     }
 
     public static parseConfig() {
-        let config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("luaide-lite")
+        let config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("emmylua-lite")
         ExtMgr.luaOperatorCheck = config.get<boolean>("luaOperatorCheck")
         ExtMgr.luaFunArgCheck = config.get<boolean>("luaFunArgCheck")
         ExtMgr.changeTextCheck = config.get<boolean>("changeTextCheck")

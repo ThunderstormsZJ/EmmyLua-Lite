@@ -6,5 +6,6 @@ issue/**
 **/*.map
 build/**
 .gitignore
+temp
 tsconfig.json
 package-lock.json
