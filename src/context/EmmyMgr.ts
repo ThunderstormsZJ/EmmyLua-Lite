@@ -1,0 +1,297 @@
+import * as vscode from "vscode"
+import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient"
+import { EmmyDebuggerProvider } from "../debugger/EmmyDebuggerProvider"
+import { EmmyAttachDebuggerProvider } from "../debugger/EmmyAttachDebuggerProvider"
+import { ExtMgr } from "./ExtMgr"
+import { LanguageConfiguration } from "vscode"
+import * as path from "path"
+import * as fs from "fs"
+
+export interface AnnotatorParams {
+    uri: string
+}
+
+export enum AnnotatorType {
+    Param,
+    Global,
+    DocType,
+    Upvalue,
+}
+
+export interface IAnnotator {
+    uri: string
+    ranges: vscode.Range[]
+    type: AnnotatorType
+}
+
+export interface IProgressReport {
+    text: string
+    percent: number
+}
+
+export class LuaLanguageConfiguration implements LanguageConfiguration {
+    public onEnterRules = [
+        {
+            action: { indentAction: vscode.IndentAction.None, appendText: "---" },
+            beforeText: /^---/,
+        }
+    ]
+}
+
+export class EmmyMgr {
+    private static savedContext: vscode.ExtensionContext
+    private static client: LanguageClient
+    private static activeEditor: vscode.TextEditor
+    private static javaExecutablePath: string | null
+    private static timeoutToReqAnn: NodeJS.Timer
+    private static decorateParamter: vscode.TextEditorDecorationType
+    private static decorateGlobal: vscode.TextEditorDecorationType
+    private static decorateAnnotation: vscode.TextEditorDecorationType
+    private static decorateUpvalue: vscode.TextEditorDecorationType
+
+    public static activate(context: vscode.ExtensionContext) {
+        try {
+            let snippetsPath = path.join(ExtMgr.extensionPath, "res/snippets.json")
+            let snippetsEmmyPath = path.join(ExtMgr.extensionPath, "res/snippets-emmy.json")
+            let fo = fs.readFileSync(snippetsPath).toString()
+            let fn = fs.readFileSync(snippetsEmmyPath).toString()
+            if (fo != fn) {
+                vscode.window.showInformationMessage("Snippets.json has been changed, please reload window to take effect.")
+                fs.writeFileSync(snippetsPath, fn)
+            }
+        } catch (err) { }
+
+        EmmyMgr.savedContext = context
+        EmmyMgr.javaExecutablePath = ExtMgr.getJavaExe()
+        EmmyMgr.startClient()
+        EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeConfiguration(EmmyMgr.onDidChangeConfiguration, null, EmmyMgr.savedContext.subscriptions))
+        EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeTextDocument(EmmyMgr.onDidChangeTextDocument, null, EmmyMgr.savedContext.subscriptions))
+        EmmyMgr.savedContext.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(EmmyMgr.onDidChangeActiveTextEditor, null, EmmyMgr.savedContext.subscriptions))
+        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmy.restartServer", EmmyMgr.restartServer))
+        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmy.showReferences", EmmyMgr.showReferences))
+        EmmyMgr.savedContext.subscriptions.push(vscode.languages.setLanguageConfiguration(ExtMgr.LANGUAGE_ID, new LuaLanguageConfiguration()))
+
+        EmmyMgr.registerDebuggers();
+    }
+
+    private static registerDebuggers() {
+        var savedContext = EmmyMgr.savedContext
+        const emmyProvider = new EmmyDebuggerProvider('emmylua_new', savedContext);
+        savedContext.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("emmylua_new", emmyProvider));
+        savedContext.subscriptions.push(emmyProvider);
+        const emmyAttachProvider = new EmmyAttachDebuggerProvider('emmylua_attach', savedContext);
+        savedContext.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('emmylua_attach', emmyAttachProvider));
+        savedContext.subscriptions.push(emmyAttachProvider);
+    }
+
+    public static deactivate() {
+        EmmyMgr.stopServer()
+    }
+
+    private static onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
+        if (EmmyMgr.activeEditor && EmmyMgr.activeEditor.document === event.document) {
+            EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
+        }
+        try {
+            if (event.contentChanges.length == 1) {
+                let change = event.contentChanges[0]
+                if (change.text == " ") {
+                    let start = change.rangeOffset - 40
+                    start = start < 0 ? 0 : start
+                    let end = change.rangeOffset - 1
+                    let range = new vscode.Range(event.document.positionAt(start), event.document.positionAt(end))
+                    let compare = event.document.getText(range)
+                    if (compare.indexOf("---@") >= 0) {
+                        vscode.commands.executeCommand("editor.action.triggerSuggest")
+                    }
+                }
+            }
+        } catch (err) { }
+    }
+
+    private static onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined) {
+        if (editor === undefined) {
+            return
+        }
+        EmmyMgr.activeEditor = editor as vscode.TextEditor
+        EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
+    }
+
+    private static onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
+        let shouldRestart = false
+        let newJavaExecutablePath = ExtMgr.getJavaExe()
+        if (newJavaExecutablePath !== EmmyMgr.javaExecutablePath) {
+            EmmyMgr.javaExecutablePath = newJavaExecutablePath
+            shouldRestart = true
+        }
+        EmmyMgr.updateDecorations()
+        if (shouldRestart) {
+            EmmyMgr.restartServer()
+        }
+    }
+
+    private static startClient() {
+        let folders = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.map(f => f.uri.toString()) : []
+        if (ExtMgr.apiFolders && ExtMgr.apiFolders.length > 0) {
+            for (let i = 0; i < ExtMgr.apiFolders.length; i++) {
+                let folder = ExtMgr.apiFolders[i]
+                folder = vscode.Uri.file(folder).toString()
+                folders.push(folder)
+            }
+        }
+
+        const clientOptions: LanguageClientOptions = {
+            documentSelector: [{ scheme: "file", language: ExtMgr.LANGUAGE_ID }],
+            synchronize: {
+                configurationSection: "luaide-lite",
+                fileEvents: [
+                    vscode.workspace.createFileSystemWatcher("**/*.lua")
+                ]
+            },
+            initializationOptions: {
+                stdFolder: vscode.Uri.file(path.resolve(EmmyMgr.savedContext.extensionPath, "res/emmy/std")).toString(),
+                apiFolders: [],
+                workspaceFolders: folders,
+                client: "vsc",
+                exclude: ExtMgr.excludes
+            }
+        }
+
+        let serverOptions: ServerOptions
+        const cp = path.resolve(EmmyMgr.savedContext.extensionPath, "res/emmy/", "*")
+        const exePath = EmmyMgr.javaExecutablePath || "java"
+        console.log('exe path : ' + exePath);
+        if (ExtMgr.debugLanguageServer) {
+            serverOptions = {
+                command: exePath,
+                args: ["-Xdebug", "-Xrunjdwp:transport=dt_socket,server=n,suspend=y,address=5005", "-cp", cp, "com.tang.vscode.MainKt"]
+            }
+        } else {
+            serverOptions = {
+                command: exePath,
+                args: ["-cp", cp, "com.tang.vscode.MainKt", "-XX:+UseConcMarkSweepGC"]
+            }
+        }
+        EmmyMgr.client = new LanguageClient(ExtMgr.LANGUAGE_ID, ExtMgr.extensionName, serverOptions, clientOptions)
+        EmmyMgr.client.onReady().then(() => {
+            EmmyMgr.client.onNotification("emmy/progressReport", (d: IProgressReport) => {
+                let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
+                ExtMgr.bar.text = barText
+                if (d.percent >= 1) {
+                    ExtMgr.onReady()
+                    console.log("client ready");
+                }
+            })
+            EmmyMgr.onDidChangeActiveTextEditor(vscode.window.activeTextEditor)
+        }).catch(reson => {
+            vscode.window.showErrorMessage("Failed to start language server!\n" + reson, "Try again").then(item => {
+                EmmyMgr.startClient()
+            })
+        })
+        const disposable = EmmyMgr.client.start()
+        EmmyMgr.savedContext.subscriptions.push(disposable)
+    }
+
+    private static restartServer() {
+        if (!EmmyMgr.client) {
+            EmmyMgr.startClient()
+        } else {
+            EmmyMgr.client.stop().then(() => {
+                EmmyMgr.startClient()
+            })
+        }
+    }
+
+    private static showReferences(uri: string, pos: vscode.Position) {
+        const u = vscode.Uri.parse(uri)
+        const p = new vscode.Position(pos.line, pos.character)
+        vscode.commands.executeCommand("vscode.executeReferenceProvider", u, p).then(locations => {
+            vscode.commands.executeCommand("editor.action.showReferences", u, p, locations)
+        })
+    }
+
+    private static stopServer() {
+        if (EmmyMgr.client) {
+            EmmyMgr.client.stop()
+        }
+    }
+
+    private static updateDecorations() {
+        let config: vscode.DecorationRenderOptions = {}
+        config.light = { color: ExtMgr.lightParameter }
+        config.dark = { color: ExtMgr.darkParameter }
+        EmmyMgr.decorateParamter = vscode.window.createTextEditorDecorationType(config)
+
+        config = {}
+        config.light = { color: ExtMgr.lightGlobal }
+        config.dark = { color: ExtMgr.darkGlobal }
+        EmmyMgr.decorateGlobal = vscode.window.createTextEditorDecorationType(config)
+
+        config = {}
+        config.light = { color: ExtMgr.lightAnnotation }
+        config.dark = { color: ExtMgr.darkAnnotation }
+        EmmyMgr.decorateAnnotation = vscode.window.createTextEditorDecorationType(config)
+
+        config = {}
+        config.textDecoration = "underline"
+        EmmyMgr.decorateUpvalue = vscode.window.createTextEditorDecorationType(config)
+    }
+
+    private static requestAnnotators(editor: vscode.TextEditor, client: LanguageClient) {
+        if (!ExtMgr.isFileExclude(editor.document.uri.fsPath)) {
+            clearTimeout(EmmyMgr.timeoutToReqAnn)
+            EmmyMgr.timeoutToReqAnn = setTimeout(() => {
+                EmmyMgr.requestAnnotatorsImpl(editor, client)
+            }, 300)
+        }
+    }
+
+    private static requestAnnotatorsImpl(editor: vscode.TextEditor, client: LanguageClient) {
+        if (!EmmyMgr.decorateParamter) {
+            EmmyMgr.updateDecorations()
+        }
+        let params: AnnotatorParams = { uri: editor.document.uri.toString() }
+        client.sendRequest<IAnnotator[]>("emmy/annotator", params).then(list => {
+            let map: Map<AnnotatorType, vscode.Range[]> = new Map()
+            map.set(AnnotatorType.DocType, [])
+            map.set(AnnotatorType.Param, [])
+            map.set(AnnotatorType.Global, [])
+            map.set(AnnotatorType.Upvalue, [])
+            list.forEach(data => {
+                let uri = vscode.Uri.parse(data.uri)
+                vscode.window.visibleTextEditors.forEach((editor) => {
+                    let docUri = editor.document.uri
+                    if (uri.path.toLowerCase() === docUri.path.toLowerCase()) {
+                        let list = map.get(data.type)
+                        if (list === undefined) {
+                            list = data.ranges
+                        } else {
+                            list = list.concat(data.ranges)
+                        }
+                        map.set(data.type, list)
+                    }
+                })
+            })
+            map.forEach((v, k) => {
+                EmmyMgr.updateAnnotators(editor, k, v)
+            })
+        })
+    }
+
+    private static updateAnnotators(editor: vscode.TextEditor, type: AnnotatorType, ranges: vscode.Range[]) {
+        switch (type) {
+            case AnnotatorType.Param:
+                editor.setDecorations(EmmyMgr.decorateParamter, ranges)
+                break
+            case AnnotatorType.Global:
+                editor.setDecorations(EmmyMgr.decorateGlobal, ranges)
+                break
+            case AnnotatorType.DocType:
+                editor.setDecorations(EmmyMgr.decorateAnnotation, ranges)
+                break
+            case AnnotatorType.Upvalue:
+                editor.setDecorations(EmmyMgr.decorateUpvalue, ranges)
+                break
+        }
+    }
+}
