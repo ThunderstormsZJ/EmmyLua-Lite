@@ -2,6 +2,7 @@ import * as path from "path"
 import * as fs from "fs"
 import * as http from "http"
 import * as zlib from "zlib"
+import * as process from "process"
 import vscode = require("vscode")
 import { ExtensionContext } from "vscode"
 import { UpperLower } from "../formater/UpperLower"
@@ -163,7 +164,6 @@ export class ExtMgr {
         ExtMgr.darkParameter = config.get<string>("theme.dark.parameter")
         ExtMgr.darkGlobal = config.get<string>("theme.dark.global")
         ExtMgr.darkAnnotation = config.get<string>("theme.dark.annotation")
-        ExtMgr.debugLanguageServer = config.get<boolean>("debugLanguageServer")
         ExtMgr.showWeather = config.get<boolean>("showWeather")
         ExtMgr.formatUseTab = config.get<boolean>("formatUseTab")
         // single script root.
@@ -172,6 +172,9 @@ export class ExtMgr {
         scriptRoot = scriptRoot.toLowerCase()
         ExtMgr.scriptRoots = new Array<string>()
         ExtMgr.scriptRoots.push(scriptRoot)
+
+        //debugger server
+        ExtMgr.debugLanguageServer = process.env["EMMY_DEV"] == "true"
 
         if (ExtMgr.luaOperatorCheck == null) {
             ExtMgr.luaOperatorCheck = true
@@ -219,9 +222,6 @@ export class ExtMgr {
         }
         if (ExtMgr.darkAnnotation == null) {
             ExtMgr.darkAnnotation = "#00D6AA"
-        }
-        if (ExtMgr.debugLanguageServer == null) {
-            ExtMgr.debugLanguageServer = false
         }
         if (ExtMgr.showWeather == null) {
             ExtMgr.showWeather = false
@@ -370,7 +370,7 @@ export class ExtMgr {
                                     result.data.forecast != null &&
                                     result.data.forecast.length > 1) {
                                     let today = result.data.forecast[0]
-                                    let todayStr = Helper.Format("【{0}】【{1},{2},{3},{4}】【QQ群:621598820】", city, today.date, today.type, today.high, today.low)
+                                    let todayStr = Helper.Format("【{0}】【{1},{2},{3},{4}】", city, today.date, today.type, today.high, today.low)
                                     todayStr = todayStr.replace(/ /g, "")
                                     vscode.window.showInformationMessage(todayStr)
                                 }

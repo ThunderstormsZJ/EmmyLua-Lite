@@ -14,26 +14,10 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
+            "env": {
+                "EMMY_DEV": "true"
+            },
             "preLaunchTask": "npm"
-        },
-        {
-            "name": "Server",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/src/debugger/EmmyDebugAdapter.ts",
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
-            ]
-        },
-    ],
-    "compounds": [{
-        "name": "Extension + Server",
-        "configurations": [
-            "Extension",
-            "Server"
-        ]
-    }]
+        }
+    ]
 }

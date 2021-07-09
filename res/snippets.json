@@ -118,5 +118,11 @@
 		"body": "return ${1:}",
 		"description": "return",
 		"scope": "source.lua"
+	},
+	"region": {
+		"prefix": "region",
+		"body": "--region\n ${1:} \n--endregion",
+		"description": "region",
+		"scope": "source.lua"
 	}
 }

@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
-import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient"
+import * as net from "net"
+import { LanguageClient, LanguageClientOptions, ServerOptions, StreamInfo } from "vscode-languageclient"
 import { EmmyDebuggerProvider } from "../debugger/EmmyDebuggerProvider"
 import { EmmyAttachDebuggerProvider } from "../debugger/EmmyAttachDebuggerProvider"
 import { ExtMgr } from "./ExtMgr"
@@ -162,10 +163,21 @@ export class EmmyMgr {
         const exePath = EmmyMgr.javaExecutablePath || "java"
         console.log('exe path : ' + exePath);
         if (ExtMgr.debugLanguageServer) {
-            serverOptions = {
-                command: exePath,
-                args: ["-Xdebug", "-Xrunjdwp:transport=dt_socket,server=n,suspend=y,address=5005", "-cp", cp, "com.tang.vscode.MainKt"]
-            }
+            const connectionInfo = {
+                port: 5007
+            };
+            serverOptions = () => {
+                // Connect to language server via socket
+                let socket = net.connect(connectionInfo);
+                let result: StreamInfo = {
+                    writer: socket,
+                    reader: socket as NodeJS.ReadableStream
+                };
+                socket.on("close", () => {
+                    console.log("client connect error!");
+                });
+                return Promise.resolve(result);
+            };
         } else {
             serverOptions = {
                 command: exePath,

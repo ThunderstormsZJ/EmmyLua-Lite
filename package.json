@@ -91,7 +91,7 @@
 			{
 				"type": "emmylua_new",
 				"label": "EmmyLua New Debugger",
-				"program": "./out/debugger/EmmyDebugAdapter.js",
+				"program": "./out/src/debugger/EmmyDebugAdapter.js",
 				"runtime": "node",
 				"configurationAttributes": {
 					"launch": {
@@ -290,43 +290,43 @@
 				},
 				"emmylua-lite.highlightNormal": {
 					"type": "string",
-					"default": "#2B91AF",
-					"description": "Light theme highlight color.\n白色系主题高亮的颜色."
+					"default": "#66CCFD",
+					"description": "Light theme highlight color.\n[白色系主题]高亮的颜色."
 				},
 				"emmylua-lite.highlightDark": {
 					"type": "string",
 					"default": "#00D6AA",
-					"description": "Dark theme highlight color.\n黑色系主题高亮的颜色."
+					"description": "Dark theme highlight color.\n[黑色系主题]高亮的颜色."
 				},
 				"emmylua-lite.theme.light.parameter": {
 					"type": "string",
-					"default": "#565656",
-					"description": "Light theme parameter color.\n白色系主题参数颜色."
+					"default": "#d0a25e",
+					"description": "Light theme parameter color.\n[白色系主题]参数颜色."
 				},
 				"emmylua-lite.theme.light.global": {
 					"type": "string",
-					"default": "#2B91AF",
-					"description": "Light theme global color.\n白色系主题全局变量颜色."
+					"default": "#83a8ed",
+					"description": "Light theme global color.\n[白色系主题]全局变量颜色."
 				},
 				"emmylua-lite.theme.light.annotation": {
 					"type": "string",
 					"default": "#2B91AF",
-					"description": "Light theme annotation color.\n白色系主题注解颜色."
+					"description": "Light theme annotation color.\n[白色系主题]注解颜色."
 				},
 				"emmylua-lite.theme.dark.parameter": {
 					"type": "string",
-					"default": "#FFFFFF",
-					"description": "Dark theme parameter color.\n黑色系主题参数颜色."
+					"default": "#66CCFF",
+					"description": "Dark theme parameter color.\n[黑色系主题]参数颜色."
 				},
 				"emmylua-lite.theme.dark.global": {
 					"type": "string",
 					"default": "#00D6AA",
-					"description": "Dark theme parameter color.\n黑色系主题参数颜色."
+					"description": "Dark theme parameter color.\n[黑色系主题]参数颜色."
 				},
 				"emmylua-lite.theme.dark.annotation": {
 					"type": "string",
 					"default": "#00D6AA",
-					"description": "Dark theme annotation color.\n黑色系主题注解颜色."
+					"description": "Dark theme annotation color.\n[黑色系主题]注解颜色."
 				},
 				"emmylua-lite.enableFormat": {
 					"type": "boolean",

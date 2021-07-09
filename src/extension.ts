@@ -3,7 +3,6 @@ import { ExtMgr } from "./context/ExtMgr"
 import { LegacyMgr } from "./context/LegacyMgr"
 import { EmmyMgr } from "./context/EmmyMgr"
 
-export let savedContext: vscode.ExtensionContext;
 export function activate(context: vscode.ExtensionContext) {
 	if (ExtMgr.initialize(context)) {
 		if (ExtMgr.isLegacy) {

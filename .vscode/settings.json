@@ -12,5 +12,6 @@
         "res/template",
         "test/xlua"
     ],
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "editor.snippetSuggestions": "inline"
 }
