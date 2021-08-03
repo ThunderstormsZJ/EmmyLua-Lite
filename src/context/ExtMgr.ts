@@ -16,7 +16,7 @@ import { PvdFormat } from "../provider/PvdFormat"
 export class ExtMgr {
     public static LUA_MODE: vscode.DocumentFilter = { language: "lua", scheme: "file" }
     public static LANGUAGE_ID = "lua"
-    public static extensionID = "wellshsu.emmylua-lite"
+    public static extensionID = "ThunderstormsZJ.emmylua-lite"
     public static extensionName = "emmylua-lite"
     public static slogan = "Lite & Free"
 
@@ -45,14 +45,15 @@ export class ExtMgr {
     public static lightParameter: string = "#565656"
     public static lightGlobal: string = "#2B91AF"
     public static lightAnnotation: string = "#2B91AF"
+    public static lightNotUse: string = "gray"
     public static darkParameter: string = "#FFFFFF"
     public static darkGlobal: string = "#00D6AA"
     public static darkAnnotation: string = "#00D6AA"
+    public static darkNotUse: string = "gray"
 
     public static isFreshDay: boolean = false
     public static isLegacy: boolean = false
     public static isFocused: boolean
-    public static isDevMode: boolean = false
     public static debugLanguageServer: boolean = false
     public static showWeather: boolean = false
     public static formatUseTab: boolean = false
@@ -61,7 +62,7 @@ export class ExtMgr {
     public static Commands = [
         { label: "emmylua-lite.toUpperCase", desc: "Shift chars to uppercase", func: UpperLower.toUpperCase },
         { label: "emmylua-lite.toLowerCase", desc: "Shift carrs to lowercase", func: UpperLower.toLowerCase },
-        { label: "emmylua-lite.formatFiles", desc: "Format file(s)", func: FileFormat.process },
+        // { label: "emmylua-lite.formatFiles", desc: "Format file(s)", func: FileFormat.process },
         { label: "emmylua-lite.createTemplate", desc: "Create template", func: PvdTemplate.process },
         { label: "emmylua-lite.convertTsFile", desc: "Translate lua to typescript", func: PvdLuats.processFile },
         { label: "emmylua-lite.convertTsText", desc: "Convert lua to typescript", func: PvdLuats.processText },
@@ -82,7 +83,6 @@ export class ExtMgr {
     }
 
     public static initialize(context: ExtensionContext): boolean {
-        ExtMgr.isDevMode = context.extensionPath.indexOf("wellshsu.emmylua-lite") < 0
         if (vscode.workspace == null || vscode.workspace.rootPath == null) {
             vscode.window.showInformationMessage(ExtMgr.extensionName + " does't support single lua file, please use 'Open Folder' instead.")
             return false
@@ -148,14 +148,19 @@ export class ExtMgr {
 
     public static parseConfig() {
         let config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("emmylua-lite")
-        ExtMgr.luaOperatorCheck = config.get<boolean>("luaOperatorCheck")
-        ExtMgr.luaFunArgCheck = config.get<boolean>("luaFunArgCheck")
+        //#region For Legacy
+
+        ExtMgr.luaOperatorCheck = config.get<boolean>("luaOperatorCheck") //  是否解析符号重载
+        ExtMgr.luaFunArgCheck = config.get<boolean>("luaFunArgCheck") // 是否解析函数的参数
+        ExtMgr.enableFormat = config.get<boolean>("enableFormat") // 是否使用格式化
+        ExtMgr.moduleFunNestingCheck = config.get<boolean>("moduleFunNestingCheck") // 模块方法嵌套检查, 如果在一个方法中出现另外一个模块方法会认为是错误的
+
+        //#endregion
+
         ExtMgr.changeTextCheck = config.get<boolean>("changeTextCheck")
-        ExtMgr.moduleFunNestingCheck = config.get<boolean>("moduleFunNestingCheck")
         ExtMgr.enableHighlight = config.get<boolean>("enableHighlight")
-        ExtMgr.normalHighlightColor = config.get<string>("highlightNormal")
-        ExtMgr.darkHighlightColor = config.get<string>("highlightDark")
-        ExtMgr.enableFormat = config.get<boolean>("enableFormat")
+        ExtMgr.normalHighlightColor = config.get<string>("theme.light.highlight")
+        ExtMgr.darkHighlightColor = config.get<string>("theme.dark.highlight")
         ExtMgr.core = config.get<string>("core")
         ExtMgr.javahome = config.get<string>("javahome")
         ExtMgr.lightParameter = config.get<string>("theme.light.parameter")
@@ -226,7 +231,7 @@ export class ExtMgr {
         if (ExtMgr.showWeather == null) {
             ExtMgr.showWeather = false
         }
-        if (ExtMgr.formatUseTab == null) {
+        if (ExtMgr.formatUseTab == null) { // 是否使用tab来缩进代码
             ExtMgr.formatUseTab = false
         }
 
@@ -269,12 +274,12 @@ export class ExtMgr {
             })
         }
 
-        ExtMgr.formatHex = config.get<boolean>("formatHex")
+        ExtMgr.formatHex = config.get<boolean>("formatHex") // 是否格式化十六进制的数字
         if (ExtMgr.formatHex == null) {
             ExtMgr.formatHex = true
         }
 
-        ExtMgr.enableDiagnostic = config.get<boolean>("enableDiagnostic")
+        ExtMgr.enableDiagnostic = config.get<boolean>("enableDiagnostic") // 是否启用代码分析, 如果禁用将不会有错误提示
         if (ExtMgr.enableDiagnostic == null) {
             ExtMgr.enableDiagnostic = true
         }

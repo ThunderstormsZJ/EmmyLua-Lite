@@ -17,6 +17,9 @@ export enum AnnotatorType {
     Global,
     DocType,
     Upvalue,
+    NotUse,
+    ParamHint,
+    LocalHint
 }
 
 export interface IAnnotator {
@@ -49,6 +52,7 @@ export class EmmyMgr {
     private static decorateGlobal: vscode.TextEditorDecorationType
     private static decorateAnnotation: vscode.TextEditorDecorationType
     private static decorateUpvalue: vscode.TextEditorDecorationType
+    private static decorateNotUse: vscode.TextEditorDecorationType
 
     public static activate(context: vscode.ExtensionContext) {
         try {
@@ -68,8 +72,8 @@ export class EmmyMgr {
         EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeConfiguration(EmmyMgr.onDidChangeConfiguration, null, EmmyMgr.savedContext.subscriptions))
         EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeTextDocument(EmmyMgr.onDidChangeTextDocument, null, EmmyMgr.savedContext.subscriptions))
         EmmyMgr.savedContext.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(EmmyMgr.onDidChangeActiveTextEditor, null, EmmyMgr.savedContext.subscriptions))
-        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmy.restartServer", EmmyMgr.restartServer))
-        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmy.showReferences", EmmyMgr.showReferences))
+        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.restartServer", EmmyMgr.restartServer))
+        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.showReferences", EmmyMgr.showReferences))
         EmmyMgr.savedContext.subscriptions.push(vscode.languages.setLanguageConfiguration(ExtMgr.LANGUAGE_ID, new LuaLanguageConfiguration()))
 
         EmmyMgr.registerDebuggers();
@@ -229,6 +233,15 @@ export class EmmyMgr {
     }
 
     private static updateDecorations() {
+        // 各种方式更新时之前的decoration没有dispose导致重复渲染
+        if (EmmyMgr.decorateParamter){
+            EmmyMgr.decorateParamter.dispose()
+            EmmyMgr.decorateGlobal.dispose()
+            EmmyMgr.decorateAnnotation.dispose()
+            EmmyMgr.decorateNotUse.dispose()
+            EmmyMgr.decorateUpvalue.dispose()
+        }
+
         let config: vscode.DecorationRenderOptions = {}
         config.light = { color: ExtMgr.lightParameter }
         config.dark = { color: ExtMgr.darkParameter }
@@ -243,6 +256,11 @@ export class EmmyMgr {
         config.light = { color: ExtMgr.lightAnnotation }
         config.dark = { color: ExtMgr.darkAnnotation }
         EmmyMgr.decorateAnnotation = vscode.window.createTextEditorDecorationType(config)
+        
+        config = {}
+        config.light = { color: ExtMgr.lightNotUse }
+        config.dark = { color: ExtMgr.darkNotUse }
+        EmmyMgr.decorateNotUse = vscode.window.createTextEditorDecorationType(config)
 
         config = {}
         config.textDecoration = "underline"
@@ -254,7 +272,7 @@ export class EmmyMgr {
             clearTimeout(EmmyMgr.timeoutToReqAnn)
             EmmyMgr.timeoutToReqAnn = setTimeout(() => {
                 EmmyMgr.requestAnnotatorsImpl(editor, client)
-            }, 300)
+            }, 150)
         }
     }
 
@@ -269,6 +287,7 @@ export class EmmyMgr {
             map.set(AnnotatorType.Param, [])
             map.set(AnnotatorType.Global, [])
             map.set(AnnotatorType.Upvalue, [])
+            map.set(AnnotatorType.NotUse, [])
             list.forEach(data => {
                 let uri = vscode.Uri.parse(data.uri)
                 vscode.window.visibleTextEditors.forEach((editor) => {
@@ -303,6 +322,9 @@ export class EmmyMgr {
                 break
             case AnnotatorType.Upvalue:
                 editor.setDecorations(EmmyMgr.decorateUpvalue, ranges)
+                break
+            case AnnotatorType.NotUse:
+                editor.setDecorations(EmmyMgr.decorateNotUse, ranges)
                 break
         }
     }

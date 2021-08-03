@@ -7,11 +7,11 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    "emmylua-lite.luaOperatorCheck": false,
     "emmylua-lite.exclude": [
         "res/template",
         "test/xlua"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib",
-    "editor.snippetSuggestions": "inline"
+    "editor.snippetSuggestions": "inline",
+    // "lua.trace.server": "verbose",
 }

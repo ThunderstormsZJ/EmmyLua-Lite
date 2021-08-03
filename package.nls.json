@@ -1,0 +1,26 @@
+{
+    "emmylua-lite.javahome": "JAVA HOME.",
+    "emmylua-lite.enableHighlight": "Highlight global var.",
+    "emmylua-lite.templateDefine": "Replace specific var in template file.",
+    "emmylua-lite.templateDir": "Template file directory, support recursive.",
+    "emmylua-lite.exclude": "Exclude specific file(s) or folder(s).",
+    "emmylua-lite.apiFolders": "API define's directory(relative/absolute).",
+    "emmylua-lite.numberRadix": "Display number radix when debug number value.",
+    "emmylua-lite.typescriptDefine": "Replace specific var in typescript content.",
+    "emmylua-lite.showWeather": "If show today's weather?",
+
+    "emmylua-lite.theme.light.highlight": "Light theme highlight color.",
+    "emmylua-lite.theme.light.parameter": "Light theme parameter color.",
+    "emmylua-lite.theme.light.global": "Light theme global color.",
+    "emmylua-lite.theme.light.annotation": "Light theme annotation color.",
+    "emmylua-lite.theme.dark.highlight": "Dark theme highlight color.",
+    "emmylua-lite.theme.dark.parameter": "Dark theme parameter color.",
+    "emmylua-lite.theme.dark.global": "Dark theme global color.",
+    "emmylua-lite.theme.dark.annotation": "Dark theme annotation color.",
+
+    "debug.attach.target_pid": "Target pid",
+    "debug.attach.name": "Attach by process id",
+    "debug.attach.label": "EmmyLuaLite: Attach by process id",
+    "debug.attach.desc": "Attach process debugger"
+
+}

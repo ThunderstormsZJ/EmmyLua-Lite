@@ -1,0 +1,25 @@
+{
+    "emmylua-lite.javahome": "Java环境根目录.",
+    "emmylua-lite.enableHighlight": "全局变量高亮显示.",
+    "emmylua-lite.templateDefine": "模板值定义, 用于创建模板文件时全局替换.",
+    "emmylua-lite.templateDir": "模板文件目录.",
+    "emmylua-lite.exclude": "需要排除的文件夹, 这些文件夹将不会被解析.",
+    "emmylua-lite.apiFolders": "API提示文件路径(相对/绝对).",
+    "emmylua-lite.numberRadix": "调试时需要显示的数字进制格式, 例如二进制, 十进制等.",
+    "emmylua-lite.typescriptDefine": "转换为Typescript时的模板值定义, 用于全局替换转化内容.",
+    "emmylua-lite.showWeather": "是否显示天气, 默认关闭.",
+
+    "emmylua-lite.theme.light.highlight": "[白色系主题]高亮颜色.",
+    "emmylua-lite.theme.light.parameter": "[白色系主题]参数颜色.",
+    "emmylua-lite.theme.light.global": "[白色系主题]全局变量颜色.",
+    "emmylua-lite.theme.light.annotation": "[白色系主题]注解颜色.",
+    "emmylua-lite.theme.dark.highlight": "[黑色系主题]高亮颜色.",
+    "emmylua-lite.theme.dark.parameter": "[黑色系主题]参数颜色.",
+    "emmylua-lite.theme.dark.global": "[黑色系主题]全局变量颜色.",
+    "emmylua-lite.theme.dark.annotation": "[黑色系主题]注解颜色.",
+
+    "debug.attach.target_pid": "目标进程ID",
+    "debug.attach.name": "通过进程ID附加",
+    "debug.attach.label": "EmmyLuaLite: 通过进程ID附加",
+    "debug.attach.desc": "附加进程调试"
+}
