@@ -40,6 +40,8 @@ export class LuaLanguageConfiguration implements LanguageConfiguration {
             beforeText: /^---/,
         }
     ]
+
+    public wordPattern = /((?<=')[^']+(?='))|((?<=")[^"]+(?="))|(-?\d*\.\d\w*)|([^\`\~\!\@\$\^\&\*\(\)\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\s]+)/g;
 }
 
 export class EmmyMgr {
@@ -94,32 +96,31 @@ export class EmmyMgr {
     }
 
     private static onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
-        if (EmmyMgr.activeEditor && EmmyMgr.activeEditor.document === event.document) {
+        if (EmmyMgr.activeEditor && EmmyMgr.activeEditor.document === event.document && EmmyMgr.activeEditor.document.languageId == ExtMgr.LANGUAGE_ID) {
             EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
         }
-        try {
-            if (event.contentChanges.length == 1) {
-                let change = event.contentChanges[0]
-                if (change.text == " ") {
-                    let start = change.rangeOffset - 40
-                    start = start < 0 ? 0 : start
-                    let end = change.rangeOffset - 1
-                    let range = new vscode.Range(event.document.positionAt(start), event.document.positionAt(end))
-                    let compare = event.document.getText(range)
-                    if (compare.indexOf("---@") >= 0) {
-                        vscode.commands.executeCommand("editor.action.triggerSuggest")
-                    }
-                }
-            }
-        } catch (err) { }
+        // try {
+        //     if (event.contentChanges.length == 1) {
+        //         let change = event.contentChanges[0]
+        //         if (change.text == " ") {
+        //             let start = change.rangeOffset - 40
+        //             start = start < 0 ? 0 : start
+        //             let end = change.rangeOffset - 1
+        //             let range = new vscode.Range(event.document.positionAt(start), event.document.positionAt(end))
+        //             let compare = event.document.getText(range)
+        //             if (compare.indexOf("---@") >= 0) {
+        //                 vscode.commands.executeCommand("editor.action.triggerSuggest")
+        //             }
+        //         }
+        //     }
+        // } catch (err) { }
     }
 
     private static onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined) {
-        if (editor === undefined) {
-            return
+        if (editor && editor.document.languageId == ExtMgr.LANGUAGE_ID) {
+            EmmyMgr.activeEditor = editor as vscode.TextEditor
+            EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
         }
-        EmmyMgr.activeEditor = editor as vscode.TextEditor
-        EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
     }
 
     private static onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
@@ -148,10 +149,8 @@ export class EmmyMgr {
         const clientOptions: LanguageClientOptions = {
             documentSelector: [{ scheme: "file", language: ExtMgr.LANGUAGE_ID }],
             synchronize: {
-                configurationSection: "emmylua-lite",
-                fileEvents: [
-                    vscode.workspace.createFileSystemWatcher("**/*.lua")
-                ]
+                configurationSection: [ExtMgr.extensionName, "files.associations"],
+                // fileEvents: vscode.workspace.createFileSystemWatcher("**/*.lua")
             },
             initializationOptions: {
                 stdFolder: vscode.Uri.file(path.resolve(EmmyMgr.savedContext.extensionPath, "res/emmy/std")).toString(),
@@ -290,8 +289,16 @@ export class EmmyMgr {
             map.set(AnnotatorType.NotUse, [])
             list.forEach(data => {
                 let uri = vscode.Uri.parse(data.uri)
+                let uriSet = new Set<string>()
+
+                // 而vscode 在diff，分屏以及其他一些情况下可以获得多个相同的uri
                 vscode.window.visibleTextEditors.forEach((editor) => {
                     let docUri = editor.document.uri
+                    if (uriSet.has(docUri.path)){
+                        return;
+                    }
+                    uriSet.add(docUri.path)
+                    
                     if (uri.path.toLowerCase() === docUri.path.toLowerCase()) {
                         let list = map.get(data.type)
                         if (list === undefined) {

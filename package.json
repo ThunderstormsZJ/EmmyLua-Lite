@@ -3,7 +3,7 @@
 	"displayName": "EmmyLua-Lite",
 	"description": "Lua developement and debug tools.",
 	"license": "MIT",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ThunderstormsZJ/EmmyLua-Lite"
@@ -219,9 +219,9 @@
 				"title": "To Typescript"
 			},
 			{
-                "command": "emmylua-lite.restartServer",
-                "title": "EmmyLua-Lite: Restart Lua Server"
-            }
+				"command": "emmylua-lite.restartServer",
+				"title": "EmmyLua-Lite: Restart Lua Server"
+			}
 		],
 		"menus": {
 			"explorer/context": [
