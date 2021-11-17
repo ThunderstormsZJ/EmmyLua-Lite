@@ -14,6 +14,17 @@
 
 os = {}
 
+---@class OSDate
+---@field year number @four digits
+---@field month number @(1–12)
+---@field day number @f(1-31)
+---@field hour number @(0-23)
+---@field min number @(0-59)
+---@field sec number @(0-61), due to leap seconds
+---@field wday number @(weekday, 1–7, Sunday is 1)
+---@field yday number @(day of the year, 1–366)
+---@field isdst number @(daylight saving flag, a boolean)
+
 ---
 --- Returns an approximation of the amount in seconds of CPU time used by
 --- the program.
@@ -52,10 +63,10 @@ function os.clock() end
 ---
 --- On non-POSIX systems, this function may be not thread safe because of its
 --- reliance on C function `gmtime` and C function `localtime`.
----@overload fun():string|table
+---@overload fun():OSDate
 ---@param format string
 ---@param time number
----@return string|table
+---@return OSDate
 function os.date(format, time) end
 
 ---

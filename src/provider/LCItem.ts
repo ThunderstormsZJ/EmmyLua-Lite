@@ -97,8 +97,8 @@ export class LCItem extends CompletionItem {
 
     public addItem(item: LCItem) {
         item.parent = this;
-        this.items.set(item.label, item)
-        this.lowerCaseItems.set(item.label.toLocaleLowerCase(), item)
+        this.items.set(item.label.toString(), item)
+        this.lowerCaseItems.set(item.label.toString().toLocaleLowerCase(), item)
     }
 
     public delItem(key: string) {
@@ -109,7 +109,7 @@ export class LCItem extends CompletionItem {
     }
 
     public delItemToGolbal(item: LCItem) {
-        var citem: LCItem = this.getItemByKey(item.label)
+        var citem: LCItem = this.getItemByKey(item.label.toString())
         if (citem != null) {
             var path = item.uri.path
             var count = 0;
@@ -119,23 +119,23 @@ export class LCItem extends CompletionItem {
                     citem.globalUris.splice(index, 1)
                 }
                 if (citem.globalUris.length <= 0) {
-                    this.delItem(citem.label)
+                    this.delItem(citem.label.toString())
                 }
             } else {
                 item.items.forEach((v, k) => {
                     citem.delItemToGolbal(v)
                 })
                 if (citem.items.size == 0) {
-                    this.delItem(citem.label)
+                    this.delItem(citem.label.toString())
                 }
             }
         }
     }
 
     public addItemToGolbal(item: LCItem) {
-        var citem: LCItem = this.getItemByKey(item.label)
+        var citem: LCItem = this.getItemByKey(item.label.toString())
         if (citem == null) {
-            var newItem: LCItem = new LCItem(item.label, item.kind, null, null, false, item.token)
+            var newItem: LCItem = new LCItem(item.label.toString(), item.kind, null, null, false, item.token)
             citem = newItem
             this.addItem(newItem);
         }

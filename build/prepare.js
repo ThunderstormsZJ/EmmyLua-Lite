@@ -36,8 +36,8 @@ async function build() {
     // await fc('temp/emmy_core.so', 'res/debugger/emmy/linux/emmy_core.so', { mkdirp: true });
 
     // win
-    // await decompress('temp/emmy_core@x86.zip', 'res/debugger/emmy/windows/x86/');
-    // await decompress('temp/emmy_core@x64.zip', 'res/debugger/emmy/windows/x64/');
+    await decompress('temp/emmy_core@x86.zip', 'res/debugger/emmy/windows/x86/');
+    await decompress('temp/emmy_core@x64.zip', 'res/debugger/emmy/windows/x64/');
 
     // ls
     await fc('temp/EmmyLua-LS-all.jar', 'res/emmy/emmy.jar', { mkdirp: true });

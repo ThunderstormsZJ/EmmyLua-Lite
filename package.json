@@ -3,7 +3,7 @@
 	"displayName": "EmmyLua-Lite",
 	"description": "Lua developement and debug tools.",
 	"license": "MIT",
-	"version": "0.3.6",
+	"version": "0.3.9",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ThunderstormsZJ/EmmyLua-Lite"
@@ -16,7 +16,7 @@
 		"name": "ThunderstormsZJ"
 	},
 	"engines": {
-		"vscode": "^1.39.0"
+		"vscode": "^1.52.0"
 	},
 	"icon": "res/logo.png",
 	"categories": [
@@ -80,6 +80,80 @@
 							"request": "attach",
 							"name": "%debug.attach.name%",
 							"pid": 0
+						}
+					}
+				],
+				"languages": [
+					"lua"
+				]
+			},
+			{
+				"type": "emmylua_launch",
+				"label": "EmmyLua Launch Debug",
+				"program": "./out/src/debugger/EmmyLaunchDebugAdapter.js",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"program",
+							"workingDir",
+							"arguments",
+							"useWindowsTerminal"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "%debug.launch.program%",
+								"default": ""
+							},
+							"workingDir": {
+								"type": "string",
+								"description": "%debug.launch.workingDir%",
+								"default": ""
+							},
+							"arguments": {
+								"type": "array",
+								"description": "%debug.launch.arguments%",
+								"default": []
+							},
+							"blockOnExit": {
+								"type": "boolean",
+								"description": "%debug.launch.blockOnExit%",
+								"default": true
+							},
+							"useWindowsTerminal": {
+								"type": "boolean",
+								"description": "%debug.launch.useWindowsTerminal%",
+								"default": true
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "emmylua_launch",
+						"request": "launch",
+						"name": "%debug.launch.name%",
+						"program": "",
+						"workingDir": "",
+						"arguments": [],
+						"blockOnExit": true,
+						"useWindowsTerminal": true
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "%debug.launch.label%",
+						"description": "%debug.launch.desc%",
+						"body": {
+							"type": "emmylua_launch",
+							"request": "launch",
+							"name": "%debug.launch.name%",
+							"program": "",
+							"workingDir": "",
+							"arguments": [],
+							"blockOnExit": true,
+							"useWindowsTerminal": true
 						}
 					}
 				],
@@ -221,6 +295,10 @@
 			{
 				"command": "emmylua-lite.restartServer",
 				"title": "EmmyLua-Lite: Restart Lua Server"
+			},
+			{
+				"command": "emmylua-lite.insertEmmyDebugCode",
+				"title": "EmmyLua-Lite: Insert Emmy Debug Code"
 			}
 		],
 		"menus": {
@@ -371,6 +449,26 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%emmylua-lite.showWeather%"
+				},
+				"lua.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		},
+		"configurationDefaults": {
+			"[lua]": {
+				"editor.quickSuggestions": {
+					"other": true,
+					"comments": true,
+					"strings": true
 				}
 			}
 		}
@@ -379,19 +477,18 @@
 		"vscode:publish": "vsce package",
 		"vscode:prepublish": "node ./build/prepare.js && tsc -p ./",
 		"compile": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"@types/mocha": "^2.2.32",
-		"@types/node": "^7.0.43",
+		"@types/mocha": "^7.0.2",
+		"@types/node": "^13.11.1",
 		"@types/socket.io": "^1.4.27",
 		"@types/socket.io-client": "^1.4.27",
+		"@types/vscode": "^1.52.0",
 		"tslint": "^5.8.0",
 		"mocha": "^2.3.3",
 		"ts-loader": "^5.3.3",
 		"typescript": "^4.0.2",
-		"vscode": "^1.1.22",
 		"download": "^7.1.0",
 		"filecopy": "^4.0.2"
 	},
@@ -399,7 +496,7 @@
 		"rd": "^1.1.2",
 		"vscode-debugadapter": "^1.31.0",
 		"vscode-debugprotocol": "^1.31.0",
-		"vscode-languageclient": "^5.1.0",
+		"vscode-languageclient": "^7.0.0",
 		"iconv-lite": "^0.5.0"
 	}
 }

@@ -509,7 +509,7 @@ export class LFile {
             startInfos.params = frag.params
             startInfos.kind = CompletionItemKind.Function;
             startInfos.isLocal = frag.isLocal;
-            var funKey = startInfos.label;
+            var funKey = startInfos.label.toString();
             if (this.tempFunc != null) {
                 funKey = this.tempFunc.label + "->" + funKey;
             }

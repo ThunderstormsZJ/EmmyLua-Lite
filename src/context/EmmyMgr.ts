@@ -1,8 +1,9 @@
 import * as vscode from "vscode"
 import * as net from "net"
-import { LanguageClient, LanguageClientOptions, ServerOptions, StreamInfo } from "vscode-languageclient"
+import { LanguageClient, LanguageClientOptions, ServerOptions, StreamInfo } from "vscode-languageclient/node"
 import { EmmyDebuggerProvider } from "../debugger/EmmyDebuggerProvider"
 import { EmmyAttachDebuggerProvider } from "../debugger/EmmyAttachDebuggerProvider"
+import { EmmyLaunchDebuggerProvider } from '../debugger/EmmyLaunchDebuggerProvider';
 import { ExtMgr } from "./ExtMgr"
 import { LanguageConfiguration } from "vscode"
 import * as path from "path"
@@ -35,6 +36,10 @@ export interface IProgressReport {
 
 export class LuaLanguageConfiguration implements LanguageConfiguration {
     public onEnterRules = [
+        {
+            action: { indentAction: vscode.IndentAction.None, appendText: "---@" },
+            beforeText: /^---@/,
+        },
         {
             action: { indentAction: vscode.IndentAction.None, appendText: "---" },
             beforeText: /^---/,
@@ -76,6 +81,7 @@ export class EmmyMgr {
         EmmyMgr.savedContext.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(EmmyMgr.onDidChangeActiveTextEditor, null, EmmyMgr.savedContext.subscriptions))
         EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.restartServer", EmmyMgr.restartServer))
         EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.showReferences", EmmyMgr.showReferences))
+        EmmyMgr.savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.insertEmmyDebugCode", EmmyMgr.insertEmmyDebugCode))
         EmmyMgr.savedContext.subscriptions.push(vscode.languages.setLanguageConfiguration(ExtMgr.LANGUAGE_ID, new LuaLanguageConfiguration()))
 
         EmmyMgr.registerDebuggers();
@@ -89,6 +95,9 @@ export class EmmyMgr {
         const emmyAttachProvider = new EmmyAttachDebuggerProvider('emmylua_attach', savedContext);
         savedContext.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('emmylua_attach', emmyAttachProvider));
         savedContext.subscriptions.push(emmyAttachProvider);
+        const emmyLaunchProvider = new EmmyLaunchDebuggerProvider('emmylua_launch', savedContext);
+        savedContext.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('emmylua_launch', emmyLaunchProvider));
+        savedContext.subscriptions.push(emmyLaunchProvider);
     }
 
     public static deactivate() {
@@ -100,6 +109,7 @@ export class EmmyMgr {
             EmmyMgr.requestAnnotators(EmmyMgr.activeEditor, EmmyMgr.client)
         }
         // try {
+        //     // 优化注解后得提示
         //     if (event.contentChanges.length == 1) {
         //         let change = event.contentChanges[0]
         //         if (change.text == " ") {
@@ -149,7 +159,7 @@ export class EmmyMgr {
         const clientOptions: LanguageClientOptions = {
             documentSelector: [{ scheme: "file", language: ExtMgr.LANGUAGE_ID }],
             synchronize: {
-                configurationSection: [ExtMgr.extensionName, "files.associations"],
+                // configurationSection: [ExtMgr.extensionName, "files.associations"],
                 // fileEvents: vscode.workspace.createFileSystemWatcher("**/*.lua")
             },
             initializationOptions: {
@@ -197,7 +207,7 @@ export class EmmyMgr {
                     console.log("client ready");
                 }
             })
-            EmmyMgr.onDidChangeActiveTextEditor(vscode.window.activeTextEditor)
+            // EmmyMgr.onDidChangeActiveTextEditor(vscode.window.activeTextEditor)
         }).catch(reson => {
             vscode.window.showErrorMessage("Failed to start language server!\n" + reson, "Try again").then(item => {
                 EmmyMgr.startClient()
@@ -223,6 +233,43 @@ export class EmmyMgr {
         vscode.commands.executeCommand("vscode.executeReferenceProvider", u, p).then(locations => {
             vscode.commands.executeCommand("editor.action.showReferences", u, p, locations)
         })
+    }
+
+    private static async insertEmmyDebugCode(){
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            return;
+        }
+        const document = activeEditor.document;
+        if (document.languageId !== 'lua') {
+            return;
+        }
+    
+        let dllPath = '';
+        const isWindows = process.platform === 'win32';
+        const isMac = process.platform === 'darwin';
+        const isLinux = process.platform === 'linux';
+        if (isWindows) {
+            const arch = await vscode.window.showQuickPick(['x64', 'x86']);
+            if (!arch) {
+                return;
+            }
+            dllPath = path.join(EmmyMgr.savedContext.extensionPath, `debugger/emmy/windows/${arch}/?.dll`);
+        }
+        else if (isMac) {
+            dllPath = path.join(EmmyMgr.savedContext.extensionPath, `debugger/emmy/mac/emmy_core.dylib`);
+        }
+        else if (isLinux) {
+            dllPath = path.join(EmmyMgr.savedContext.extensionPath, `debugger/emmy/linux/emmy_core.so`);
+        }
+    
+        const host = 'localhost';
+        const port = 9966;
+        const ins = new vscode.SnippetString();
+        ins.appendText(`package.cpath = package.cpath .. ";${dllPath.replace(/\\/g, '/')}"\n`);
+        ins.appendText(`local dbg = require("emmy_core")\n`);
+        ins.appendText(`dbg.tcpListen("${host}", ${port})`);
+        activeEditor.insertSnippet(ins);
     }
 
     private static stopServer() {

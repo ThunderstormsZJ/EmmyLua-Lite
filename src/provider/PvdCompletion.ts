@@ -88,21 +88,21 @@ export class PvdCompletion implements vscode.CompletionItemProvider {
                     citems.push(v)
                 })
                 citems.forEach(v => {
-                    if (onlyItems.has(v.label)) {
-                        var oldItem = onlyItems.get(v.label)
+                    if (onlyItems.has(v.label.toString())) {
+                        var oldItem = onlyItems.get(v.label.toString())
                         if (v.kind == vscode.CompletionItemKind.Function && oldItem.kind != vscode.CompletionItemKind.Function) {
                             var newFun = LICache.getIns().getItem(v)
                             funItems.push(newFun)
-                            onlyItems.set(v.label, newFun)
+                            onlyItems.set(v.label.toString(), newFun)
 
                         }
                     } else {
                         if (v.kind == vscode.CompletionItemKind.Function) {
                             var newFun = LICache.getIns().getItem(v)
                             funItems.push(newFun)
-                            onlyItems.set(v.label, newFun)
+                            onlyItems.set(v.label.toString(), newFun)
                         } else {
-                            onlyItems.set(v.label, v)
+                            onlyItems.set(v.label.toString(), v)
                         }
                     }
                 })
@@ -112,8 +112,8 @@ export class PvdCompletion implements vscode.CompletionItemProvider {
                 }
                 if (argsItems) {
                     argsItems.forEach(v => {
-                        if (!onlyItems.has(v.label)) {
-                            onlyItems.set(v.label, v)
+                        if (!onlyItems.has(v.label.toString())) {
+                            onlyItems.set(v.label.toString(), v)
                         }
                     });
                 }

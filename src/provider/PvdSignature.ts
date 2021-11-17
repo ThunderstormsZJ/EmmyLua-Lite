@@ -19,7 +19,7 @@ export class PvdSignature implements SignatureHelpProvider {
 		si.parameters = []
 		var pstr = "("
 		symbol.args.forEach(arg => {
-			si.parameters.push(new ParameterInformation(arg.label, arg.documentation))
+			si.parameters.push(new ParameterInformation(arg.label.toString(), arg.documentation))
 			pstr += arg.label + ",";
 		})
 		if (pstr != "(") {

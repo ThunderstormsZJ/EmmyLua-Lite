@@ -115,7 +115,7 @@ export class LuaCompletionItemControler {
                             var tempKeys: Array<string> = new Array<string>()
                             var item = element
                             while (true) {
-                                tempKeys.push(item.label)
+                                tempKeys.push(item.label.toString())
                                 if (item.parent) {
                                     item = item.parent
                                     if (item.completionFunName != null) { break; }

@@ -49,13 +49,13 @@
 	},
 	"while": {
 		"prefix": "while",
-		"body": "while ${1:} do\n    \nend",
+		"body": "while ${1:} do\n  ${2:}  \nend",
 		"description": "while",
 		"scope": "source.lua"
 	},
 	"if": {
 		"prefix": "if",
-		"body": "if ${1:} then\n    \nend",
+		"body": "if ${1:} then\n  ${2:}  \nend",
 		"description": "if",
 		"scope": "source.lua"
 	},
@@ -107,9 +107,22 @@
 		"description": "for k,v in pairs()",
 		"scope": "source.lua"
 	},
-	"function": {
-		"prefix": "function",
-		"body": "function ${1:}(${2:})\n    \nend",
+	"localfunc": {
+		"prefix": "localfunc",
+		"body": "local ${1:} = function (${2:})\n  ${3:}  \nend",
+		"description": "function",
+		"scope": "source.lua"
+	},
+	"func": {
+		"prefix": "func",
+		"body": [
+			"---${2:函数的描述}",
+            "---author ${3:JunZhou} $CURRENT_YEAR/$CURRENT_MONTH/$CURRENT_DATE/ $CURRENT_HOUR:$CURRENT_MINUTE",
+            "---@return ${4|table,string,number|} @",
+            "function $TM_FILENAME_BASE:${1:FunctionName}()",
+            "    ${0:--Pass}",
+            "end"
+		],
 		"description": "function",
 		"scope": "source.lua"
 	},
@@ -119,9 +132,9 @@
 		"description": "return",
 		"scope": "source.lua"
 	},
-	"region": {
-		"prefix": "region",
-		"body": "--region\n ${1:} \n--endregion",
+	"#reg": {
+		"prefix": "#reg",
+		"body": "--region ${1:}\n ${2:} \n--endregion",
 		"description": "region",
 		"scope": "source.lua"
 	}

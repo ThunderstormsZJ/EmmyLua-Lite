@@ -11,7 +11,5 @@
         "res/template",
         "test/xlua"
     ],
-    "typescript.tsdk": "node_modules\\typescript\\lib",
-    "editor.snippetSuggestions": "inline",
-    // "lua.trace.server": "verbose",
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }
