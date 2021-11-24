@@ -98,6 +98,17 @@ export class EmmyMgr {
         const emmyLaunchProvider = new EmmyLaunchDebuggerProvider('emmylua_launch', savedContext);
         savedContext.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('emmylua_launch', emmyLaunchProvider));
         savedContext.subscriptions.push(emmyLaunchProvider);
+
+        // debug command
+        // savedContext.subscriptions.push(vscode.commands.registerCommand("emmylua-lite.debugEditorContents", (uri) => {
+        //     vscode.debug.startDebugging(vscode.workspace.getWorkspaceFolder(uri), {
+        //         type: 'lua',
+        //         name: 'Run Editor Contents',
+        //         request: 'launch',
+        //         program: uri.fsPath,
+        //         noDebug: true
+        //     });
+        // }))
     }
 
     public static deactivate() {

@@ -1,6 +1,7 @@
 import { LoggingDebugSession, Event, OutputEvent } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as path from 'path';
+import { LogLevel, LogOutputEvent } from "vscode-debugadapter/lib/logger";
 
 export abstract class DebugSession extends LoggingDebugSession {
     constructor() {
@@ -8,11 +9,16 @@ export abstract class DebugSession extends LoggingDebugSession {
     }
 
     protected ext: string[] = ['.lua'];
+    protected debugEmmyResPath: string = "res/debugger/emmy/";
     private _findFileSeq = 0;
     private _fileCache = new Map<string, string>();
 
-	log(obj: any) {
-		this.sendEvent(new Event("log", obj));
+	log(msg: string) {
+		this.sendEvent(new LogOutputEvent(msg + "\n", LogLevel.Log));
+    }
+    
+    logError(msg: string){
+        this.sendEvent(new LogOutputEvent(msg + "\n", LogLevel.Error));
     }
     
     printConsole(msg: string, newLine: boolean = true) {

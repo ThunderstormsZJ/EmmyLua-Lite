@@ -1,6 +1,10 @@
 exports.default = {
-    emmyDebuggerVersion: '1.0.17',
-    emmyDebuggerUrl: 'https://github.com/CppCXY/EmmyLuaDebugger/releases/download',
+    emmyDebuggerVersion: 'v1.1.4',
+    emmyDebuggerUrl: 'https://github.com/ThunderstormsZJ/EmmyLuaDebugger/releases/download',
     lanServerVersion: "0.4.2",
-    lanServerUrl: 'https://github.com/ThunderstormsZJ/EmmyLua-LanguageServer/releases/download'
+    lanServerUrl: 'https://github.com/ThunderstormsZJ/EmmyLua-LanguageServer/releases/download',
+    luaRuntimeVesion: "v1.2",
+    luaRuntimeUrl: 'https://github.com/ThunderstormsZJ/lua-build/releases/download',
+
+    downloadRecordFile: 'res/download'
 }

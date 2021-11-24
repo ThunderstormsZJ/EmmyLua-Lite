@@ -5,6 +5,7 @@ import * as proto from "./EmmyDebugProto";
 import { EmmyDebugSession } from "./EmmyDebugSession";
 import { OutputEvent } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
+import path = require("path");
 
 interface EmmyLaunchDebugArguments extends DebugProtocol.LaunchRequestArguments {
     extensionPath: string;
@@ -83,7 +84,6 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
         return new Promise<WinArch>((r, c) => {
             cp.exec(args.join(" "), { cwd: cwd })
             .on('close', (code) => {
-                    this.printConsole(code.toString());
                     r(code === 0 ? WinArch.X64 : WinArch.X86);
                 })
                 .on('error', c);
@@ -96,17 +96,14 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
 
         const arch = await this.detectArch();
         const archName = arch === WinArch.X64 ? 'x64' : 'x86';
-        const cwd = `${this.extensionPath}/res/debugger/emmy/windows/${archName}`;
-        const mc = this.program.match(/[^/\\]+$/);
+        const libPath = path.join(this.extensionPath, this.debugEmmyResPath, `windows/${archName}`);
+        // const mc = this.program.match(/[^/\\]+$/);
         const args = [
-            "--title",
-            `${mc ? mc[0] : this.program}`,
-            "emmy_tool.exe",
             "run_and_attach",
+            "-dir",
+            `"${libPath}"`,
             "-dll",
             "emmy_hook.dll",
-            "-dir",
-            `"${cwd}"`,
             "-work",
             `"${this.workingDir}"`,
             `${this.blockOnExit ? "-block-on-exit" : ""}`,
@@ -119,7 +116,7 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
 
         args.push(...(<string[]>this.arguments));
         return new Promise((r, c) => {
-            this.printConsole(cwd);
+            this.printConsole(args.join(" "));
             net.createServer(client => {
                 this.debugClient = client.on("data", (buffer) => {
                     r(Number(buffer.toString()));
@@ -130,8 +127,20 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
                 });
             }).listen(port, "localhost");
 
-            cp.spawn(`wt`, args, {
-                cwd: cwd
+            const ls = cp.spawn("emmy_tool.exe", args, {
+                cwd: libPath,
+            });
+
+            ls.stderr.on('data', (data)=>{
+                this.logError(`stderr: ${data}`);
+            });
+
+            ls.on('close', (code) => {
+                this.log(`child process exited with code ${code}`);
+            });
+
+            ls.stdout.on('data', (data) => {
+                this.log(`stdout: ${data}`);
             });
         });
     }

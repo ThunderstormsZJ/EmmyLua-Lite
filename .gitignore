@@ -1,6 +1,7 @@
 out
 /node_modules
 /res/yesterday
+/res/download
 /test/tolua/.vs
 /test/tolua/Library
 /test/tolua/Temp
