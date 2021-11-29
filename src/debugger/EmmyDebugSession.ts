@@ -136,7 +136,7 @@ export class EmmyDebugSession extends DebugSession implements IEmmyStackContext 
         if (this.client) {
             this.client.removeAllListeners();
         }
-        this.sendEvent(new OutputEvent('Disconnected.\n'));
+        this.printConsole(`Disconnected.`);
         if (this.listenMode) {
             this.client = undefined;
         } else {

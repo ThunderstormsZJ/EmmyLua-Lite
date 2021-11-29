@@ -124,14 +124,14 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
 
         args.push(...(<string[]>this.arguments));
         return new Promise((r, c) => {
-            this.printConsole(args.join(" "));
+            this.printConsole(`Run Command: ${args.join(" ")}`);
             net.createServer(client => {
                 this.debugClient = client.on("data", (buffer) => {
                     r(Number(buffer.toString()));
                 }).on("close", () => {
-                    console.log("close");
+                    this.log("close");
                 }).on("error", (e) => {
-                    console.log(e);
+                    this.logError(e.message);
                 });
             }).listen(port, "localhost");
 
@@ -219,10 +219,7 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
     }
 
     protected onSocketClose() {
-        if (this.client) {
-            this.client.removeAllListeners();
-        }
-        this.sendEvent(new OutputEvent('Disconnected.\n'));
+        super.onSocketClose();
     }
 
 }
