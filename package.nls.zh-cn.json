@@ -17,6 +17,7 @@
     "emmylua-lite.theme.dark.parameter": "[黑色系主题]参数颜色.",
     "emmylua-lite.theme.dark.global": "[黑色系主题]全局变量颜色.",
     "emmylua-lite.theme.dark.annotation": "[黑色系主题]注解颜色.",
+    "emmylua-lite.runtime.luaversion": "调试运行Lua版本",
 
     "debug.attach.target_pid": "目标进程ID",
     "debug.attach.name": "通过进程ID附加",

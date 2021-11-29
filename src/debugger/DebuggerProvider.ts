@@ -19,10 +19,15 @@ export abstract class DebuggerProvider implements vscode.DebugConfigurationProvi
         return !s || s.trim().length === 0;
     }
 
+    protected getLuaVersion(): string{
+        let config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("emmylua-lite");
+        return config.get<string>("runtime.luaversion") ?? "";
+    }
+
     protected getSourceRoots(): string[] {
         const workspaceFolders = vscode.workspace.workspaceFolders || [];
         const list = workspaceFolders.map(f => { return f.uri.fsPath; });
-        const config = <Array<string>> vscode.workspace.getConfiguration("emmylua").get("source.roots") || [];
+        const config = <Array<string>> vscode.workspace.getConfiguration("emmylua-lite").get("apiFolders") || [];
         return list.concat(config.map(item => { return normalize(item); }));
     }
 

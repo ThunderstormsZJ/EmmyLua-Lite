@@ -17,6 +17,7 @@
     "emmylua-lite.theme.dark.parameter": "Dark theme parameter color.",
     "emmylua-lite.theme.dark.global": "Dark theme global color.",
     "emmylua-lite.theme.dark.annotation": "Dark theme annotation color.",
+    "emmylua-lite.runtime.luaversion": "Runtime Lua Version.",
 
     "debug.attach.target_pid": "Target pid",
     "debug.attach.name": "Attach by process id",

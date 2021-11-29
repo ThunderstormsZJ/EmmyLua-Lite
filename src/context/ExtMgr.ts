@@ -6,7 +6,6 @@ import * as process from "process"
 import vscode = require("vscode")
 import { ExtensionContext } from "vscode"
 import { UpperLower } from "../formater/UpperLower"
-import { FileFormat } from "../formater/FileFormat"
 import { PvdTemplate } from "../provider/PvdTemplate"
 import { PvdLuats } from "../provider/PvdLuats"
 import { Helper } from "./Helper"
@@ -29,9 +28,6 @@ export class ExtMgr {
     public static requireFunNames: Array<string>
     public static scriptRoots: Array<string>
     public static isInited: boolean = false
-    public static enableHighlight: boolean = true
-    public static normalHighlightColor: string = "#2B91AF"
-    public static darkHighlightColor: string = "#00D6AA"
     public static enableFormat: boolean = true
     public static templateDir: string
     public static templateDefine: Map<string, string>
@@ -42,14 +38,16 @@ export class ExtMgr {
     public static typescriptDefine: Map<string, string>
     public static core: string = "emmy"
     public static javahome: string
-    public static lightParameter: string = "#565656"
-    public static lightGlobal: string = "#2B91AF"
+    public static enableHighlight: boolean = true
+    public static normalHighlightColor: string = "#2B91AF"
+    public static darkHighlightColor: string = "#00D6AA"
+    public static lightParameter: string = "#D0A25E"
+    public static lightGlobal: string = "#83A8ED"
     public static lightAnnotation: string = "#2B91AF"
-    public static lightNotUse: string = "gray"
     public static darkParameter: string = "#FFFFFF"
     public static darkGlobal: string = "#00D6AA"
     public static darkAnnotation: string = "#00D6AA"
-    public static darkNotUse: string = "gray"
+    public static luaVersion: string = "5.4"
 
     public static isFreshDay: boolean = false
     public static isLegacy: boolean = false
@@ -169,6 +167,7 @@ export class ExtMgr {
         ExtMgr.darkParameter = config.get<string>("theme.dark.parameter")
         ExtMgr.darkGlobal = config.get<string>("theme.dark.global")
         ExtMgr.darkAnnotation = config.get<string>("theme.dark.annotation")
+        ExtMgr.luaVersion = config.get<string>("runtime.luaversion")
         ExtMgr.showWeather = config.get<boolean>("showWeather")
         ExtMgr.formatUseTab = config.get<boolean>("formatUseTab")
         // single script root.
@@ -201,14 +200,6 @@ export class ExtMgr {
         }
         if (ExtMgr.enableFormat == null) {
             ExtMgr.enableFormat = true
-        }
-        if (ExtMgr.core == null) {
-            ExtMgr.core = "emmy"
-        }
-        if (ExtMgr.core == "emmy") {
-            ExtMgr.isLegacy = ExtMgr.getJavaExe() == null ? true : false
-        } else {
-            ExtMgr.isLegacy = true
         }
         if (ExtMgr.lightParameter == null) {
             ExtMgr.lightParameter = "#565656"
@@ -314,34 +305,6 @@ export class ExtMgr {
         } else {
             return false
         }
-    }
-
-    public static getJavaExe(): string {
-        try {
-            if (process.platform == "win32") {
-                if (ExtMgr.javahome != null) {
-                    return path.join(ExtMgr.javahome, "bin/java.exe")
-                }
-                if ("JAVA_HOME" in process.env) {
-                    let javaHome = <string>process.env.JAVA_HOME
-                    let javaPath = path.join(javaHome, "bin/java.exe")
-                    return javaPath
-                }
-                if ("PATH" in process.env) {
-                    let PATH = <string>process.env.PATH
-                    let paths = PATH.split("")
-                    let pathCount = paths.length
-                    for (let i = 0; i < pathCount; i++) {
-                        let javaPath = path.join(paths[i], "bin/java.exe")
-                        if (fs.existsSync(javaPath)) {
-                            return javaPath
-                        }
-                    }
-                }
-            }
-        } catch{
-        }
-        return null
     }
 
     public static onReady() {

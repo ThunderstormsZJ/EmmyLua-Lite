@@ -6,10 +6,12 @@ import { EmmyDebugSession } from "./EmmyDebugSession";
 import { OutputEvent } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import path = require("path");
+import { PathMgr } from "../context/PathMgr";
 
 interface EmmyLaunchDebugArguments extends DebugProtocol.LaunchRequestArguments {
     extensionPath: string;
     sourcePaths: string[];
+    luaVersion?: string;
     program?: string;
     arguments?: string[];
     workingDir?: string;
@@ -29,6 +31,7 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
     private arguments: string[] = [];
     private blockOnExit: boolean = true;
     private debugClient?: net.Socket;
+    private useWindowsTerminal: boolean = true;
     private pid = 0;
 
 
@@ -47,8 +50,13 @@ export class EmmyLaunchDebugSession extends EmmyDebugSession {
         this.workingDir = args.workingDir ?? ""
         this.arguments = args.arguments ?? []
         this.blockOnExit = args.blockOnExit ?? true;
+        this.useWindowsTerminal = args.useWindowsTerminal ?? true;
 
-        if (args.useWindowsTerminal) {
+        if (this.program == ""){
+            this.program = path.join(this.extensionPath, PathMgr.GetLuaRuntimeExe(args.luaVersion));
+        }
+        
+        if (this.useWindowsTerminal) {
             this.pid = await this.runAndAttachUseWindowsTerminal();
         }
         else {

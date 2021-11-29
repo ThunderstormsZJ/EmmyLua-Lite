@@ -7,6 +7,7 @@ export class EmmyLaunchDebuggerProvider extends DebuggerProvider {
         configuration.extensionPath = this.context.extensionPath;
         configuration.sourcePaths = this.getSourceRoots();
         configuration.ext = this.getExt();
+        configuration.luaVersion = this.getLuaVersion();
         return configuration;
     }
 }

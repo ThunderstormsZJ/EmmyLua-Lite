@@ -95,10 +95,8 @@
 				"configurationAttributes": {
 					"launch": {
 						"required": [
-							"program",
 							"workingDir",
-							"arguments",
-							"useWindowsTerminal"
+							"arguments"
 						],
 						"properties": {
 							"program": {
@@ -149,7 +147,6 @@
 							"type": "emmylua_launch",
 							"request": "launch",
 							"name": "%debug.launch.name%",
-							"program": "",
 							"workingDir": "",
 							"arguments": []
 						}
@@ -409,6 +406,18 @@
 					"type": "string",
 					"default": "#00D6AA",
 					"description": "%emmylua-lite.theme.dark.annotation%"
+				},
+				"emmylua-lite.runtime.luaversion":{
+					"type": "string",
+					"description": "%emmylua-lite.runtime.luaversion%",
+					"default": "5.4",
+					"enum": [
+						"5.1",
+						"5.2",
+						"5.3",
+						"5.4",
+						"latest"
+					]
 				},
 				"emmylua-lite.templateDefine": {
 					"type": "array",

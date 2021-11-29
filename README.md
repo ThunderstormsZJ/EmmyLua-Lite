@@ -1,6 +1,7 @@
 # 在luaide-lite基础上得改版
 * 添加EmmyLua得调试功能，去除原有得JIT调试
-* 参考Lua-Debug添加单文件调试
+
+# 调试说明
 
    
 # Fulllist | 完整列表

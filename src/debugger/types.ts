@@ -20,6 +20,7 @@ export interface EmmyDebugConfiguration extends DebugConfigurationBase {
 
 export interface EmmyLaunchDebugConfiguration extends DebugConfigurationBase {
     program: string;
+    luaVersion: string;
     arguments: string[];
     workingDir: string;
     blockOnExit: boolean;
