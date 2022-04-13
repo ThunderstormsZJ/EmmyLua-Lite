@@ -120,12 +120,15 @@ async function build() {
         let copyList = [];
         results.forEach(files=>{
             files.forEach(file=>{
+                console.log(file.path)
                 if (CopyMap.has(file.path)){
-                    console.log(`Copy ==> temp/${file.path} To ${CopyMap.get(file.path)}`);
+                    console.log(`Copy ==> temp/${file.path} To `);
                     copyList.push(fse.copy(`temp/${file.path}`, `${CopyMap.get(file.path)}`));
                 }
             });
         })
+        console.log(`Copy ==> temp/EmmyLua-LS-all.jar To res/emmy/emmy.jar`);
+        copyList.push(fse.copy(`temp/EmmyLua-LS-all.jar`, `res/emmy/emmy.jar`));
         return Promise.all(copyList);
     });
 }
