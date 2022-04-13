@@ -24,10 +24,15 @@ export enum AnnotatorType {
     LocalHint
 }
 
+export interface RenderRange{
+    range: vscode.Range;
+    hint: string;
+}
+
 export interface IAnnotator {
-    uri: string
-    ranges: vscode.Range[]
-    type: AnnotatorType
+    uri: string;
+    ranges: RenderRange[];
+    type: AnnotatorType;
 }
 
 export interface IProgressReport {
@@ -61,6 +66,8 @@ export class EmmyMgr {
     private static decorateAnnotation: vscode.TextEditorDecorationType
     private static decorateUpvalue: vscode.TextEditorDecorationType
     private static decorateNotUse: vscode.TextEditorDecorationType
+    private static decorateParamHint: vscode.TextEditorDecorationType
+    private static decorateLocalHint: vscode.TextEditorDecorationType
 
     public static activate(context: vscode.ExtensionContext) {
         try {
@@ -81,6 +88,37 @@ export class EmmyMgr {
         EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeTextDocument(EmmyMgr.onDidChangeTextDocument, null, EmmyMgr.savedContext.subscriptions));
         EmmyMgr.savedContext.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(EmmyMgr.onDidChangeActiveTextEditor, null, EmmyMgr.savedContext.subscriptions));
         EmmyMgr.savedContext.subscriptions.push(vscode.languages.setLanguageConfiguration(ExtMgr.LANGUAGE_ID, new LuaLanguageConfiguration()));
+
+        EmmyMgr.savedContext.subscriptions.push(vscode.languages.registerInlineValuesProvider('lua', {
+            // 不知道是否应该发到ls上再做处理
+            // 先简单处理一下吧
+            provideInlineValues(document: vscode.TextDocument, viewport: vscode.Range, context: vscode.InlineValueContext): vscode.ProviderResult<vscode.InlineValue[]> {
+    
+                const allValues: vscode.InlineValue[] = [];
+                const regExps = [
+                    /(?<=local\s+)[^\s,\<]+/,
+                    /(?<=---@param\s+)\S+/
+                ]
+    
+                for (let l = viewport.start.line; l <= context.stoppedLocation.end.line; l++) {
+                    const line = document.lineAt(l);
+    
+                    for (const regExp of regExps) {
+                        const match = regExp.exec(line.text);
+                        if (match) {
+                            const varName = match[0];
+                            const varRange = new vscode.Range(l, match.index, l, match.index + varName.length);
+                            // value found via variable lookup
+                            allValues.push(new vscode.InlineValueVariableLookup(varRange, varName, false));
+                            break;
+                        }
+                    }
+    
+                }
+    
+                return allValues;
+            }
+        }));
 
         EmmyMgr.registerCommands(); 
         EmmyMgr.registerDebuggers();
@@ -199,20 +237,24 @@ export class EmmyMgr {
                 };
                 socket.on("close", () => {
                     console.log("client connect error!");
+                    EmmyMgr.client.stop()
+                    EmmyMgr.client = null
                 });
                 return Promise.resolve(result);
             };
+            clientOptions.initializationOptions.client = "debug"
         } else {
             serverOptions = {
                 command: exePath,
-                args: ["-cp", cp, "com.tang.vscode.MainKt", "-XX:+UseConcMarkSweepGC"]
+                args: ["-cp", cp, "com.tang.vscode.MainKt", "-XX:+UseG1GC", "-XX:+UseStringDeduplication"]
             }
         }
         EmmyMgr.client = new LanguageClient(ExtMgr.LANGUAGE_ID, ExtMgr.extensionName, serverOptions, clientOptions)
         EmmyMgr.client.onReady().then(() => {
             EmmyMgr.client.onNotification("emmy/progressReport", (d: IProgressReport) => {
-                let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
-                ExtMgr.bar.text = barText
+                // let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
+                // ExtMgr.bar.text = barText
+                ExtMgr.bar.text = d.text
                 if (d.percent >= 1) {
                     ExtMgr.onReady()
                     console.log("client ready");
@@ -236,6 +278,8 @@ export class EmmyMgr {
             EmmyMgr.decorateAnnotation.dispose()
             EmmyMgr.decorateNotUse.dispose()
             EmmyMgr.decorateUpvalue.dispose()
+            EmmyMgr.decorateParamHint.dispose()
+            EmmyMgr.decorateLocalHint.dispose()
         }
 
         let config: vscode.DecorationRenderOptions = {}
@@ -261,6 +305,9 @@ export class EmmyMgr {
         config = {}
         config.textDecoration = "underline"
         EmmyMgr.decorateUpvalue = vscode.window.createTextEditorDecorationType(config)
+
+        EmmyMgr.decorateParamHint = vscode.window.createTextEditorDecorationType({});
+        EmmyMgr.decorateLocalHint = vscode.window.createTextEditorDecorationType({});
     }
 
     private static requestAnnotators(editor: vscode.TextEditor, client: LanguageClient) {
@@ -278,12 +325,14 @@ export class EmmyMgr {
         }
         let params: AnnotatorParams = { uri: editor.document.uri.toString() }
         client.sendRequest<IAnnotator[]>("emmy/annotator", params).then(list => {
-            let map: Map<AnnotatorType, vscode.Range[]> = new Map()
+            let map: Map<AnnotatorType, RenderRange[]> = new Map()
             map.set(AnnotatorType.DocType, [])
             map.set(AnnotatorType.Param, [])
             map.set(AnnotatorType.Global, [])
             map.set(AnnotatorType.Upvalue, [])
             map.set(AnnotatorType.NotUse, [])
+            map.set(AnnotatorType.ParamHint, []);
+            map.set(AnnotatorType.LocalHint, []);
             list.forEach(data => {
                 let uri = vscode.Uri.parse(data.uri)
                 let uriSet = new Set<string>()
@@ -313,7 +362,8 @@ export class EmmyMgr {
         })
     }
 
-    private static updateAnnotators(editor: vscode.TextEditor, type: AnnotatorType, ranges: vscode.Range[]) {
+    private static updateAnnotators(editor: vscode.TextEditor, type: AnnotatorType, renderRanges: RenderRange[]) {
+        let ranges = renderRanges.map(e=>e.range)
         switch (type) {
             case AnnotatorType.Param:
                 editor.setDecorations(EmmyMgr.decorateParamter, ranges)
@@ -330,6 +380,75 @@ export class EmmyMgr {
             case AnnotatorType.NotUse:
                 editor.setDecorations(EmmyMgr.decorateNotUse, ranges)
                 break
+            case AnnotatorType.ParamHint: {
+                let vscodeRenderRanges: vscode.DecorationOptions[] = []
+                renderRanges.forEach(renderRange => {
+                    if (renderRange.hint && renderRange.hint !== "") {
+                        vscodeRenderRanges.push({
+                            range: renderRange.range,
+                            renderOptions: {
+                                light: {
+                                    before: {
+                                        contentText: ` ${renderRange.hint}: `,
+                                        color: "#888888",
+                                        backgroundColor: '#EEEEEE;border-radius: 2px;',
+                                        fontWeight: '400; font-size: 12px; line-height: 1;',
+                                        margin: "1px",
+                                    }
+                                },
+                                dark: {
+                                    before: {
+                                        contentText: ` ${renderRange.hint}: `,
+                                        color: "#888888",
+                                        backgroundColor: '#333333;border-radius: 2px;',
+                                        fontWeight: '400; font-size: 12px; line-height: 1;',
+                                        margin: "1px",  
+                                        
+                                    }
+                                }
+                            }
+                        });
+    
+                    }
+                });
+    
+                editor.setDecorations(EmmyMgr.decorateParamHint, vscodeRenderRanges);
+                break;
+            }
+            case AnnotatorType.LocalHint: {
+                let vscodeRenderRanges: vscode.DecorationOptions[] = []
+                renderRanges.forEach(renderRange => {
+                    if (renderRange.hint && renderRange.hint !== "") {
+                        vscodeRenderRanges.push({
+                            range: renderRange.range,
+                            renderOptions: {
+                                light: {
+                                    after: {
+                                        contentText: `:${renderRange.hint}`,
+                                        color: "#888888",
+                                        backgroundColor: '#EEEEEE;border-radius: 2px;',
+                                        fontWeight: '400; font-size: 12px; line-height: 1;',
+                                        margin: "3px",
+                                    }
+                                },
+                                dark: {
+                                    after: {
+                                        contentText: `:${renderRange.hint}`,
+                                        color: "#888888",
+                                        backgroundColor: '#333333;border-radius: 2px;',
+                                        fontWeight: '400; font-size: 12px; line-height: 1;',
+                                        margin: "3px",
+                                    }
+                                }
+                            }
+                        });
+    
+                    }
+                });
+    
+                editor.setDecorations(EmmyMgr.decorateLocalHint, vscodeRenderRanges);
+                break;
+            }
         }
     }
 

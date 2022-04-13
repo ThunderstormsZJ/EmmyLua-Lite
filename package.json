@@ -3,7 +3,7 @@
 	"displayName": "EmmyLua-Lite",
 	"description": "Lua developement and debug tools.",
 	"license": "MIT",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ThunderstormsZJ/EmmyLua-Lite"
@@ -369,7 +369,7 @@
 				},
 				"emmylua-lite.theme.light.highlight": {
 					"type": "string",
-					"default": "#66CCFD",
+					"default": "#2B91AF",
 					"description": "%emmylua-lite.theme.light.highlight%"
 				},
 				"emmylua-lite.theme.dark.highlight": {
@@ -379,12 +379,12 @@
 				},
 				"emmylua-lite.theme.light.parameter": {
 					"type": "string",
-					"default": "#d0a25e",
+					"default": "#D0A25E",
 					"description": "%emmylua-lite.theme.light.parameter%"
 				},
 				"emmylua-lite.theme.light.global": {
 					"type": "string",
-					"default": "#83a8ed",
+					"default": "#CB4B16",
 					"description": "%emmylua-lite.theme.light.global%"
 				},
 				"emmylua-lite.theme.light.annotation": {
@@ -394,7 +394,7 @@
 				},
 				"emmylua-lite.theme.dark.parameter": {
 					"type": "string",
-					"default": "#66CCFF",
+					"default": "#FFFFFF",
 					"description": "%emmylua-lite.theme.dark.parameter%"
 				},
 				"emmylua-lite.theme.dark.global": {
@@ -478,7 +478,52 @@
 					],
 					"default": "off",
 					"description": "Traces the communication between VS Code and the language server."
-				}
+				},
+				"emmylua-lite.hint.paramHint": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%emmylua-lite.hint.paramHint%"
+                },
+				"emmylua-lite.hint.localHint": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "%emmylua-lite.hint.localHint%"
+                },
+                "emmylua-lite.hint.varargHint": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%emmylua-lite.hint.varargHint%"
+                },
+				"emmylua-lite.constructorNames": {
+                    "type": "string",
+                    "default": "new;get",
+                    "description": "%emmylua-lite.constructor.names%"
+                },
+                "emmylua-lite.requireLikeFunctions": {
+                    "type": "string",
+                    "default": "require",
+                    "description": "%emmylua-lite.requirelike.names%"
+                },
+                "emmylua-lite.diagnostics.parameterValidation": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "%emmylua-lite.diagnostics.parameterValidation%"
+                },
+                "emmylua-lite.diagnostics.anyTypeCanAssignToAnyDefineType": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%emmylua-lite.diagnostics.anyTypeCanAssignToAnyDefineType%"
+                },
+                "emmylua-lite.diagnostics.defineAnyTypeCanBeAssignedByAnyVariable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%emmylua-lite.diagnostics.defineAnyTypeCanBeAssignedByAnyVariable%"
+                },
+                "emmylua-lite.diagnostics.defineTypeCanReceiveNilType": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%emmylua-lite.diagnostics.defineTypeCanReceiveNilType%"
+                }
 			}
 		},
 		"configurationDefaults": {
@@ -489,7 +534,13 @@
 					"strings": true
 				}
 			}
-		}
+		},
+        "jsonValidation": [
+            {
+                "fileMatch": "emmy.config.json",
+                "url": "./syntaxes/emmy.config.schema.json"
+            }
+        ]
 	},
 	"scripts": {
 		"vscode:publish": "tsc -p ./ && vsce package",

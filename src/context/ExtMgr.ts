@@ -192,33 +192,6 @@ export class ExtMgr {
         if (ExtMgr.enableHighlight == null) {
             ExtMgr.enableHighlight = true
         }
-        if (ExtMgr.normalHighlightColor == null) {
-            ExtMgr.normalHighlightColor = "#2B91AF"
-        }
-        if (ExtMgr.darkHighlightColor == null) {
-            ExtMgr.darkHighlightColor = "#00D6AA"
-        }
-        if (ExtMgr.enableFormat == null) {
-            ExtMgr.enableFormat = true
-        }
-        if (ExtMgr.lightParameter == null) {
-            ExtMgr.lightParameter = "#565656"
-        }
-        if (ExtMgr.lightGlobal == null) {
-            ExtMgr.lightGlobal = "#2B91AF"
-        }
-        if (ExtMgr.lightAnnotation == null) {
-            ExtMgr.lightAnnotation = "#2B91AF"
-        }
-        if (ExtMgr.darkParameter == null) {
-            ExtMgr.darkParameter = "#FFFFFF"
-        }
-        if (ExtMgr.darkGlobal == null) {
-            ExtMgr.darkGlobal = "#00D6AA"
-        }
-        if (ExtMgr.darkAnnotation == null) {
-            ExtMgr.darkAnnotation = "#00D6AA"
-        }
         if (ExtMgr.showWeather == null) {
             ExtMgr.showWeather = false
         }
