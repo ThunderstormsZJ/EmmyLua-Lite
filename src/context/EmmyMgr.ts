@@ -264,12 +264,10 @@ export class EmmyMgr {
         await EmmyMgr.client.onReady();
         console.log("client ready");
         EmmyMgr.client.onNotification("emmy/progressReport", (d: IProgressReport) => {
-            // let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
-            // ExtMgr.bar.text = barText
             ExtMgr.bar.text = d.text
             if (d.percent >= 1) {
                 setTimeout(() => {
-                    ExtMgr.bar.hide();
+                    ExtMgr.onReady()
                 }, 3000);
             }
         })
