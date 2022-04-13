@@ -534,13 +534,7 @@
 					"strings": true
 				}
 			}
-		},
-        "jsonValidation": [
-            {
-                "fileMatch": "emmy.config.json",
-                "url": "./syntaxes/emmy.config.schema.json"
-            }
-        ]
+		}
 	},
 	"scripts": {
 		"vscode:publish": "tsc -p ./ && vsce package",

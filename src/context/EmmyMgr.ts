@@ -3,7 +3,7 @@ import * as net from "net"
 import { LanguageClient, LanguageClientOptions, ServerOptions, StreamInfo } from "vscode-languageclient/node"
 import { EmmyDebuggerProvider } from "../debugger/EmmyDebuggerProvider"
 import { EmmyAttachDebuggerProvider } from "../debugger/EmmyAttachDebuggerProvider"
-import { EmmyLaunchDebuggerProvider } from '../debugger/EmmyLaunchDebuggerProvider';
+import { EmmyLaunchDebuggerProvider } from '../debugger/EmmyLaunchDebuggerProvider'
 import { ExtMgr } from "./ExtMgr"
 import { LanguageConfiguration } from "vscode"
 import * as path from "path"
@@ -83,7 +83,6 @@ export class EmmyMgr {
 
         EmmyMgr.savedContext = context;
         EmmyMgr.javaExecutablePath = PathMgr.GetJaveExe(ExtMgr.javahome);
-        EmmyMgr.startClient();
         EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeConfiguration(EmmyMgr.onDidChangeConfiguration, null, EmmyMgr.savedContext.subscriptions));
         EmmyMgr.savedContext.subscriptions.push(vscode.workspace.onDidChangeTextDocument(EmmyMgr.onDidChangeTextDocument, null, EmmyMgr.savedContext.subscriptions));
         EmmyMgr.savedContext.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(EmmyMgr.onDidChangeActiveTextEditor, null, EmmyMgr.savedContext.subscriptions));
@@ -122,6 +121,8 @@ export class EmmyMgr {
 
         EmmyMgr.registerCommands(); 
         EmmyMgr.registerDebuggers();
+
+        EmmyMgr.startServer();
     }
 
     // 注册命令
@@ -195,7 +196,16 @@ export class EmmyMgr {
         }
     }
 
-    private static startClient() {
+    private static async startServer(){
+        EmmyMgr.doStartServer().then(()=>{
+            EmmyMgr.onDidChangeActiveTextEditor(vscode.window.activeTextEditor);
+        }).catch(reson=>{
+            vscode.window.showErrorMessage(`Failed to start "EmmyLua" language server!\n${reson}`, "Try again")
+            .then(EmmyMgr.startServer);
+        });
+    }
+
+    private static async doStartServer() {
         let folders = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.map(f => f.uri.toString()) : []
         if (ExtMgr.apiFolders && ExtMgr.apiFolders.length > 0) {
             for (let i = 0; i < ExtMgr.apiFolders.length; i++) {
@@ -208,8 +218,8 @@ export class EmmyMgr {
         const clientOptions: LanguageClientOptions = {
             documentSelector: [{ scheme: "file", language: ExtMgr.LANGUAGE_ID }],
             synchronize: {
-                // configurationSection: [ExtMgr.extensionName, "files.associations"],
-                // fileEvents: vscode.workspace.createFileSystemWatcher("**/*.lua")
+                configurationSection: [ExtMgr.extensionName, "files.associations"],
+                fileEvents: vscode.workspace.createFileSystemWatcher("**/*.lua")
             },
             initializationOptions: {
                 stdFolder: vscode.Uri.file(path.resolve(EmmyMgr.savedContext.extensionPath, "res/emmy/std")).toString(),
@@ -242,7 +252,7 @@ export class EmmyMgr {
                 });
                 return Promise.resolve(result);
             };
-            clientOptions.initializationOptions.client = "debug"
+            // clientOptions.initializationOptions.client = "debug"
         } else {
             serverOptions = {
                 command: exePath,
@@ -250,24 +260,19 @@ export class EmmyMgr {
             }
         }
         EmmyMgr.client = new LanguageClient(ExtMgr.LANGUAGE_ID, ExtMgr.extensionName, serverOptions, clientOptions)
-        EmmyMgr.client.onReady().then(() => {
-            EmmyMgr.client.onNotification("emmy/progressReport", (d: IProgressReport) => {
-                // let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
-                // ExtMgr.bar.text = barText
-                ExtMgr.bar.text = d.text
-                if (d.percent >= 1) {
-                    ExtMgr.onReady()
-                    console.log("client ready");
-                }
-            })
-            EmmyMgr.onDidChangeActiveTextEditor(vscode.window.activeTextEditor)
-        }).catch(reson => {
-            vscode.window.showErrorMessage("Failed to start language server!\n" + reson, "Try again").then(item => {
-                EmmyMgr.startClient()
-            })
+        EmmyMgr.savedContext.subscriptions.push(EmmyMgr.client.start());
+        await EmmyMgr.client.onReady();
+        console.log("client ready");
+        EmmyMgr.client.onNotification("emmy/progressReport", (d: IProgressReport) => {
+            // let barText = "Parsing(" + (d.percent * 100).toFixed(0) + "%): " + d.text
+            // ExtMgr.bar.text = barText
+            ExtMgr.bar.text = d.text
+            if (d.percent >= 1) {
+                setTimeout(() => {
+                    ExtMgr.bar.hide();
+                }, 3000);
+            }
         })
-        const disposable = EmmyMgr.client.start()
-        EmmyMgr.savedContext.subscriptions.push(disposable)
     }
 
     private static updateDecorations() {
@@ -456,11 +461,9 @@ export class EmmyMgr {
 
     private static restartServer() {
         if (!EmmyMgr.client) {
-            EmmyMgr.startClient()
+            EmmyMgr.startServer()
         } else {
-            EmmyMgr.client.stop().then(() => {
-                EmmyMgr.startClient()
-            })
+            EmmyMgr.client.stop().then(EmmyMgr.startServer);
         }
     }
 
